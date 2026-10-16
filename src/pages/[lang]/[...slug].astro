@@ -1,0 +1,30 @@
+---
+import { getCollection, render } from 'astro:content';
+import ArticleLayout from '../../layouts/ArticleLayout.astro';
+import { activeLocales, type Locale } from '../../i18n/config';
+import { validateArticles } from '../../lib/validate-articles';
+
+// Collection ids are "<locale>/<slug>", so the locale prefix in the URL comes
+// straight out of the content folder. Adding /sr/ later means adding
+// src/content/articles/sr/ - no route changes.
+export async function getStaticPaths() {
+  // Build-time gate. Throws on a bad article, which fails the build.
+  await validateArticles();
+
+  const articles = await getCollection('articles');
+
+  return articles.flatMap((entry) => {
+    const [lang, ...rest] = entry.id.split('/');
+    if (!(activeLocales as readonly string[]).includes(lang) || rest.length === 0) return [];
+    return [{ params: { lang, slug: rest.join('/') }, props: { entry } }];
+  });
+}
+
+const { entry } = Astro.props;
+const locale = Astro.params.lang as Locale;
+const { Content } = await render(entry);
+---
+
+<ArticleLayout entry={entry} locale={locale}>
+  <Content />
+</ArticleLayout>

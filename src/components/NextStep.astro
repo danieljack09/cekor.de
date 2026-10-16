@@ -1,0 +1,70 @@
+---
+import { defaultLocale, localePath, type Locale } from '../i18n/config';
+import { useTranslations } from '../i18n/ui';
+import { nextPublishedAfter, stepNumber } from '../data/sequence';
+
+interface Props {
+  /** The current article's position in the sequence. */
+  step: number;
+  locale?: Locale;
+}
+
+const { step, locale = defaultLocale } = Astro.props;
+const t = useTranslations(locale);
+
+// The next PUBLISHED step, which may be several steps ahead - or none at all,
+// in which case this component renders nothing rather than a dead link.
+const next = nextPublishedAfter(step);
+---
+
+{
+  next && (
+    <nav class="next" aria-label={t('article.next')}>
+      <a class="next__link" href={localePath(locale, next.slug)}>
+        <span class="next__label">
+          {t('article.next')} <span aria-hidden="true">&rarr;</span>
+        </span>
+        <span class="next__title">
+          {stepNumber(next)}. {next.title}
+        </span>
+      </a>
+    </nav>
+  )
+}
+
+<style>
+  .next {
+    margin-block-start: var(--space-4);
+  }
+
+  .next__link {
+    display: block;
+    font-family: var(--font-ui);
+    text-decoration: none;
+    background: var(--green-pale);
+    border-inline-start: var(--border-accent) solid var(--green);
+    /* Single-sided border: corners are never rounded. */
+    border-radius: 0;
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .next__label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--green);
+  }
+
+  .next__title {
+    display: block;
+    font-size: 1rem;
+    color: var(--ink);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.18em;
+  }
+
+  .next__link:hover .next__title {
+    text-decoration-thickness: 2px;
+  }
+</style>

@@ -1,0 +1,196 @@
+---
+import '../styles/global.css';
+import {
+  activeLocales,
+  defaultLocale,
+  htmlLang,
+  localePath,
+  ogLocale,
+  pathWithoutLocale,
+  type Locale,
+} from '../i18n/config';
+import { useTranslations } from '../i18n/ui';
+import { categories, categoryMeta, type Category } from '../data/sequence';
+
+interface Props {
+  /**
+   * Page title WITHOUT the brand suffix - the suffix is composed here so the
+   * pattern cannot drift between pages. Omit it on the homepage.
+   */
+  title?: string;
+  description: string;
+  locale?: Locale;
+  /** Homepage only: prints the tagline under the wordmark. */
+  showTagline?: boolean;
+  /** 404 and other pages that must not be indexed. */
+  noindex?: boolean;
+  /**
+   * Marks a category as current in the header nav. Set by the category pages
+   * and by ArticleLayout, from the article's own position in the sequence.
+   */
+  activeCategory?: Category;
+}
+
+const {
+  title,
+  description,
+  locale = defaultLocale,
+  showTagline = false,
+  noindex = false,
+  activeCategory,
+} = Astro.props;
+const t = useTranslations(locale);
+
+const siteName = t('site.name');
+const tagline = t('site.tagline');
+
+// {Article title} — Чекор   ·   homepage: Чекор — Германија, чекор по чекор
+const pageTitle = title ? `${title} — ${siteName}` : `${siteName} — ${tagline}`;
+
+const home = localePath(locale);
+const impressum = localePath(locale, 'impressum');
+const datenschutz = localePath(locale, 'datenschutz');
+const zaNas = localePath(locale, 'za-nas');
+const kontakt = localePath(locale, 'kontakt');
+
+const here = Astro.url.pathname;
+
+const canonical = new URL(here, Astro.site);
+
+// hreflang. Only ACTIVE locales are emitted - pointing at /sr/ before it
+// exists would be a dead link. Adding a locale to activeLocales expands this
+// on its own.
+const rest = pathWithoutLocale(here);
+const alternates = activeLocales.map((code) => ({
+  lang: htmlLang[code],
+  href: new URL(localePath(code, rest), Astro.site).href,
+}));
+---
+
+<!doctype html>
+<!-- lang drives font-feature-settings: "locl" - without it the Cyrillic
+     italics fall back to the Russian glyph forms. Never remove it. -->
+<html lang={htmlLang[locale]}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical.href} />
+    <meta name="color-scheme" content="light" />
+    <meta name="theme-color" content="#1E4D3B" />
+    {noindex && <meta name="robots" content="noindex, follow" />}
+
+    {alternates.map((alt) => <link rel="alternate" hreflang={alt.lang} href={alt.href} />)}
+    <link rel="alternate" hreflang="x-default" href={new URL(localePath(defaultLocale, rest), Astro.site).href} />
+
+    {/* Preloaded so the first paint is already in the real typeface: no swap,
+        no reflow. Only the faces used above the fold. */}
+    <link
+      rel="preload"
+      href="/fonts/literata-cyrillic-400-normal.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/fonts/ibm-plex-sans-cyrillic-600-normal.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/fonts/ibm-plex-sans-cyrillic-400-normal.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={siteName} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:locale" content={ogLocale[locale]} />
+    <meta property="og:url" content={canonical.href} />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+  </head>
+
+  <body>
+    <a class="skip-link" href="#content">{t('skip.content')}</a>
+
+    <header class="site-header">
+      <div class="wrap site-header__bar">
+        <a class="site-header__name" href={home}>{siteName}</a>
+      </div>
+
+      {/* Homepage only, under the wordmark. */}
+      {
+        showTagline && (
+          <div class="wrap">
+            <p class="site-header__tagline">{tagline}</p>
+          </div>
+        )
+      }
+
+      {/* Category nav. Always all three, even when a category has nothing
+          published yet - these are the shape of the site, not a list of what
+          happens to exist. Three items fit on a 360px screen, so no hamburger. */}
+      <nav class="cat-nav" aria-label={t('nav.categories')}>
+        <div class="wrap">
+          <ul>
+            {
+              categories.map((category) => {
+                const meta = categoryMeta[category];
+                const href = localePath(locale, meta.slug);
+                return (
+                  <li>
+                    <a
+                      class:list={['cat-nav__link', activeCategory === category && 'is-active']}
+                      href={href}
+                      aria-current={here === href ? 'page' : undefined}
+                    >
+                      {meta.label}
+                    </a>
+                  </li>
+                );
+              })
+            }
+          </ul>
+        </div>
+      </nav>
+    </header>
+
+    <main class="site-main" id="content">
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap">
+        <ul>
+          <li><a href={zaNas}>{t('page.zaNas')}</a></li>
+          <li><a href={impressum}>{t('footer.impressum')}</a></li>
+          <li><a href={datenschutz}>{t('footer.datenschutz')}</a></li>
+          <li><a href={kontakt}>{t('footer.kontakt')}</a></li>
+        </ul>
+        <p>{t('footer.note')}</p>
+      </div>
+    </footer>
+
+    {/* Cloudflare Web Analytics - no cookies, so no consent banner is needed.
+        Paste the token from the Cloudflare dashboard and uncomment. This would
+        be the only script on the site.
+
+    <script
+      defer
+      src="https://static.cloudflareinsights.com/beacon.min.js"
+      data-cf-beacon='{"token": "REPLACE_WITH_TOKEN"}'
+    ></script>
+
+    */}
+  </body>
+</html>
+

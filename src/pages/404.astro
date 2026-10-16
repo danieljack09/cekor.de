@@ -1,0 +1,20 @@
+---
+// Cloudflare Pages serves /404.html for any unmatched path. It sits outside
+// [lang] on purpose: a 404 can be hit at any URL, including ones with no
+// locale prefix, so it cannot assume one. Macedonian, since that is the only
+// active locale.
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { defaultLocale, localePath } from '../i18n/config';
+import { useTranslations } from '../i18n/ui';
+
+const locale = defaultLocale;
+const t = useTranslations(locale);
+---
+
+<BaseLayout title={t('error.404.title')} description={t('error.404.body')} locale={locale} noindex>
+  <div class="wrap prose">
+    <h1>{t('error.404.title')}</h1>
+    <p>{t('error.404.body')}</p>
+    <p><a href={localePath(locale)}>{t('error.404.home')}</a></p>
+  </div>
+</BaseLayout>

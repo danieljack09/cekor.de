@@ -1,0 +1,43 @@
+---
+import { defaultLocale, type Locale } from '../i18n/config';
+import { useTranslations } from '../i18n/ui';
+
+interface Props {
+  /** The answer, in under 200 characters. Enforced by the content schema. */
+  summary: string;
+  locale?: Locale;
+}
+
+const { summary, locale = defaultLocale } = Astro.props;
+const t = useTranslations(locale);
+const heading = t('article.summary');
+---
+
+{/* Every article opens with this: the answer first, explanation after. */}
+<aside class="summary" aria-label={heading}>
+  <p class="summary__title">{heading}</p>
+  <p class="summary__text">{summary}</p>
+</aside>
+
+<style>
+  .summary {
+    background: var(--green-pale);
+    border-inline-start: var(--border-accent) solid var(--green);
+    /* Single-sided border: corners are never rounded. */
+    border-radius: 0;
+    padding: var(--space-3);
+    margin-block-end: var(--space-4);
+  }
+
+  .summary__title {
+    font-family: var(--font-ui);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--green);
+    margin-block-end: var(--space-1);
+  }
+
+  .summary__text {
+    margin: 0;
+  }
+</style>

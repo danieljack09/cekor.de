@@ -1,0 +1,30 @@
+---
+// The root has no content of its own: every real URL carries a locale prefix.
+//
+// In production Cloudflare answers / with a 301 from public/_redirects and
+// this page is never served. It exists for `astro preview`, for any host
+// without redirect support, and because Astro's i18n routing wants a root
+// index to exist.
+//
+// Note: astro.config.mjs sets routing.redirectToDefaultLocale to false. With
+// it on, Astro replaces this file's output with its own English page carrying
+// a 2-SECOND meta refresh. Do not turn it back on.
+import { defaultLocale, htmlLang, localePath } from '../i18n/config';
+
+const target = localePath(defaultLocale);
+---
+
+<!doctype html>
+<html lang={htmlLang[defaultLocale]}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Чекор</title>
+    <meta http-equiv="refresh" content={`0; url=${target}`} />
+    <link rel="canonical" href={target} />
+    <meta name="robots" content="noindex" />
+  </head>
+  <body>
+    <p><a href={target}>Чекор — Германија, чекор по чекор</a></p>
+  </body>
+</html>

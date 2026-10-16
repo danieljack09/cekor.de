@@ -1,0 +1,28 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { activeLocales, type Locale } from '../../i18n/config';
+import { useTranslations } from '../../i18n/ui';
+
+export function getStaticPaths() {
+  return activeLocales.map((lang) => ({ params: { lang } }));
+}
+
+const locale = Astro.params.lang as Locale;
+const t = useTranslations(locale);
+---
+
+<BaseLayout
+  title={t('page.zaNas')}
+  description="Кој стои зад Чекор и како се пишуваат упатствата."
+  locale={locale}
+>
+  <div class="wrap prose">
+    <h1>{t('page.zaNas')}</h1>
+
+    {/* Stub. This page carries most of the site's trust: say who writes the
+        articles, that every claim is sourced to an official German source, and
+        that affiliate links are marked with "Werbelink" and never change what
+        an article recommends. */}
+    <p>Наскоро.</p>
+  </div>
+</BaseLayout>

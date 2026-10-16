@@ -1,0 +1,33 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { activeLocales, type Locale } from '../../i18n/config';
+
+export function getStaticPaths() {
+  return activeLocales.map((lang) => ({ params: { lang } }));
+}
+
+const locale = Astro.params.lang as Locale;
+---
+
+<BaseLayout title="Datenschutz" description="Datenschutzerklärung." locale={locale} noindex>
+  <div class="wrap prose">
+    <h1 lang="de">Datenschutz</h1>
+
+    {/*
+      STUB - MUST BE FILLED BEFORE LAUNCH.
+
+      Generate this from the eRecht24 Datenschutz generator and paste the
+      result: https://www.e-recht24.de/muster-datenschutzerklaerung.html
+
+      Facts for whoever fills it in, true as the site stands:
+        - no cookies, no local storage, no JavaScript at all
+        - no third-party requests: fonts are self-hosted from /fonts/
+        - Cloudflare Pages is the host, so it processes IP addresses in server
+          logs - needs an Art. 28 GDPR processor mention
+        - affiliate links must be disclosed here as well as marked in the body
+        - if Cloudflare Web Analytics is switched on in BaseLayout.astro, add
+          it: it is cookieless, but it still belongs in this document
+    */}
+    <p lang="de">TODO</p>
+  </div>
+</BaseLayout>

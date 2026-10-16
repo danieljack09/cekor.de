@@ -1,0 +1,67 @@
+---
+import { defaultLocale, type Locale } from '../i18n/config';
+import { useTranslations } from '../i18n/ui';
+
+interface Props {
+  /**
+   * "важно"    - ochre. Something easy to get wrong.
+   * "внимание" - alarm red. Warnings and deadlines ONLY. Spending this colour
+   *              on anything else spends its credibility.
+   */
+  variant?: 'важно' | 'внимание';
+  /** Overrides the default label. */
+  title?: string;
+  locale?: Locale;
+}
+
+const { variant = 'важно', title, locale = defaultLocale } = Astro.props;
+const t = useTranslations(locale);
+
+const label = title ?? t(variant === 'внимание' ? 'callout.внимание' : 'callout.важно');
+
+// The prop is Cyrillic, the class is not. Cyrillic CSS identifiers are legal
+// but not worth trusting to every minifier in the chain.
+const modifier = variant === 'внимание' ? 'warning' : 'important';
+---
+
+<aside class:list={['callout', `callout--${modifier}`]} aria-label={label}>
+  <p class="callout__title">{label}</p>
+  <div class="callout__body">
+    <slot />
+  </div>
+</aside>
+
+<style>
+  .callout {
+    --callout-accent: var(--ochre);
+
+    background: transparent;
+    border-inline-start: var(--border-accent) solid var(--callout-accent);
+    /* Single-sided border: corners are never rounded. */
+    border-radius: 0;
+    padding: var(--space-2) var(--space-3);
+    margin-block: var(--space-3) var(--space-4);
+  }
+
+  /* variant="важно" */
+  .callout--important {
+    --callout-accent: var(--ochre);
+  }
+
+  /* variant="внимание" */
+  .callout--warning {
+    --callout-accent: var(--alarm);
+  }
+
+  .callout__title {
+    font-family: var(--font-ui);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--callout-accent);
+    margin-block-end: var(--space-1);
+  }
+
+  .callout__body :global(> :last-child) {
+    margin-block-end: 0;
+  }
+</style>

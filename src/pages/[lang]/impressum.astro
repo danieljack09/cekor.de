@@ -1,0 +1,29 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { activeLocales, type Locale } from '../../i18n/config';
+
+export function getStaticPaths() {
+  return activeLocales.map((lang) => ({ params: { lang } }));
+}
+
+const locale = Astro.params.lang as Locale;
+---
+
+<BaseLayout title="Impressum" description="Impressum." locale={locale} noindex>
+  <div class="wrap prose">
+    <h1 lang="de">Impressum</h1>
+
+    {/*
+      STUB - MUST BE FILLED BEFORE LAUNCH.
+
+      Generate this from the eRecht24 Impressum generator and paste the result:
+      https://www.e-recht24.de/impressum-generator.html
+
+      A site reachable from Germany without a valid Impressum is an
+      Abmahnung risk. Required: name, postal address (no PO box), email, and
+      a person responsible for content under § 18 Abs. 2 MStV. Affiliate
+      links make this commercial, so § 5 DDG applies in full.
+    */}
+    <p lang="de">TODO</p>
+  </div>
+</BaseLayout>

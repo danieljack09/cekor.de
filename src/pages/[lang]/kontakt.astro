@@ -1,0 +1,29 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { activeLocales, type Locale } from '../../i18n/config';
+import { useTranslations } from '../../i18n/ui';
+
+export function getStaticPaths() {
+  return activeLocales.map((lang) => ({ params: { lang } }));
+}
+
+const locale = Astro.params.lang as Locale;
+const t = useTranslations(locale);
+---
+
+<BaseLayout
+  title={t('page.kontakt')}
+  description="Како да се јавиш: исправка, прашање или предлог за ново упатство."
+  locale={locale}
+>
+  <div class="wrap prose">
+    <h1>{t('page.kontakt')}</h1>
+
+    {/* Stub. Needs a real address before launch - § 5 DDG requires a contact
+        route, and the same address belongs in the Impressum.
+
+        No contact FORM: a form needs a server, and this is a static site with
+        no JavaScript. A mailto: link is the honest option. */}
+    <p>Наскоро.</p>
+  </div>
+</BaseLayout>

@@ -1,0 +1,77 @@
+---
+import { defaultLocale, type Locale } from '../i18n/config';
+import { useTranslations } from '../i18n/ui';
+import { totalSteps } from '../data/sequence';
+
+interface Props {
+  /** Position in the sequence. Validated 1-9 by the content schema. */
+  step: number;
+  locale?: Locale;
+}
+
+const { step, locale = defaultLocale } = Astro.props;
+const t = useTranslations(locale);
+
+const total = totalSteps;
+const current = Math.min(Math.max(step, 1), total);
+const segments = Array.from({ length: total }, (_, i) => i + 1);
+---
+
+<div class="seq" role="group" aria-label={t('article.progress')}>
+  <p class="seq__label">{t('article.step', { n: current, total })}</p>
+
+  {/* Brand element, not decoration: this strip is how a reader sees where they
+      are in the nine steps. aria-hidden only because the label above already
+      states the position in words - announcing nine bars would be noise. */}
+  <div class="seq__bars" aria-hidden="true">
+    {
+      segments.map((n) => (
+        <span
+          class:list={['seq__bar', n < current && 'is-done', n === current && 'is-current']}
+        />
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  .seq {
+    margin-block-end: var(--space-4);
+  }
+
+  .seq__label {
+    font-family: var(--font-ui);
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--green);
+    margin-block-end: var(--space-1);
+  }
+
+  .seq__bars {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    /* Fixed height: the taller current segment cannot shift anything. */
+    height: 8px;
+  }
+
+  .seq__bar {
+    flex: 1 1 0;
+    height: 3px;
+    background: var(--green-pale);
+    border-radius: 0;
+  }
+
+  /* Steps already behind the reader. */
+  .seq__bar.is-done {
+    background: var(--green);
+  }
+
+  /* Where the reader is now. Ochre, and taller, so it is findable at a glance
+     on a small screen. */
+  .seq__bar.is-current {
+    height: 8px;
+    background: var(--ochre);
+  }
+</style>

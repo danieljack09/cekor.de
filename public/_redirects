@@ -1,0 +1,7 @@
+# Cloudflare Pages redirects. Evaluated before static assets are served.
+#
+# Astro's i18n routing also emits a dist/index.html that meta-refreshes to
+# /mk/ after 2 seconds, in English. This rule means nobody ever sees it: the
+# edge answers / with a real 301 and no HTML round trip. That file stays only
+# as a fallback if dist/ is ever served by something other than Cloudflare.
+/  /mk/  301

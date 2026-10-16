@@ -1,7 +1,7 @@
 // The nine-step arrival sequence. SINGLE SOURCE OF TRUTH.
 //
-// Nothing may duplicate this list. The homepage groups it by category, the
-// category pages list it, the article layout reads it for the sequence strip
+// Nothing may duplicate this list. The Почеток во Германија page lists it, the
+// landing page previews it, the article layout reads it for the sequence strip
 // and the "next step" link, and src/lib/validate-articles.ts checks every
 // article's sequenceStep and slug against it.
 //
@@ -11,45 +11,24 @@
 
 export type Category = 'документи' | 'пари' | 'работа';
 
-/** Display order in the header nav, on the homepage, everywhere. */
+/** Categories are labels on a step, not navigation. */
 export const categories: Category[] = ['документи', 'пари', 'работа'];
 
 export interface CategoryMeta {
   /** Sentence-case display name. The Category key itself is lowercase. */
   label: string;
-  /** Latin-script URL segment, like article slugs. */
+  /**
+   * The old category-page URL. Those pages are gone; the slug now only 301s
+   * to the Почеток page (public/_redirects) and stays reserved.
+   */
   slug: string;
-  /** One line, Macedonian. Shown under the h1 on the category page. */
-  intro: string;
 }
 
 export const categoryMeta: Record<Category, CategoryMeta> = {
-  документи: {
-    label: 'Документи',
-    slug: 'dokumenti',
-    intro: 'Пријави, дозволи и потврди што ти требаат за да живееш легално во Германија.',
-  },
-  пари: {
-    label: 'Пари',
-    slug: 'pari',
-    intro: 'Сметки, даноци, додатоци и пренос на пари дома.',
-  },
-  работа: {
-    label: 'Работа',
-    slug: 'rabota',
-    intro: 'Признавање на образование и што е потребно за да работиш во својата професија.',
-  },
+  документи: { label: 'Документи', slug: 'dokumenti' },
+  пари: { label: 'Пари', slug: 'pari' },
+  работа: { label: 'Работа', slug: 'rabota' },
 };
-
-/**
- * Category slugs are reserved: an article may never use one, or it would
- * collide with a category page. Enforced in src/lib/validate-articles.ts.
- */
-export const reservedSlugs: string[] = Object.values(categoryMeta).map((m) => m.slug);
-
-export function categoryBySlug(slug: string): Category | undefined {
-  return categories.find((c) => categoryMeta[c].slug === slug);
-}
 
 export interface SequenceStep {
   /** Stable key. Never change one: it is what article frontmatter refers to. */
@@ -155,25 +134,6 @@ export function stepBySlug(slug: string): SequenceStep | undefined {
 
 export function publishedSteps(): SequenceStep[] {
   return sequence.filter((s) => s.published);
-}
-
-/** Published steps in a category, in sequence order. */
-export function byCategory(category: Category): SequenceStep[] {
-  return sequence.filter((s) => s.category === category && s.published);
-}
-
-/**
- * Steps in a category that are NOT published yet, in sequence order.
- * The homepage prints these as plain grey text so a visitor can see what the
- * site will cover. Never rendered as a link - there is no article behind one.
- */
-export function upcomingByCategory(category: Category): SequenceStep[] {
-  return sequence.filter((s) => s.category === category && !s.published);
-}
-
-/** The category an article belongs to, by its sequence position. */
-export function categoryOfStep(step: number): Category | undefined {
-  return stepAt(step)?.category;
 }
 
 /** The next published step after `n`, or undefined if there is none. */

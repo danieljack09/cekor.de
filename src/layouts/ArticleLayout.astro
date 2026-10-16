@@ -4,8 +4,8 @@ import SequenceStrip from '../components/SequenceStrip.astro';
 import SummaryBox from '../components/SummaryBox.astro';
 import SourceLine from '../components/SourceLine.astro';
 import NextStep from '../components/NextStep.astro';
-import { defaultLocale, type Locale } from '../i18n/config';
-import { categoryOfStep } from '../data/sequence';
+import { defaultLocale, intlLocale, type Locale } from '../i18n/config';
+import { sectionOfArticle } from '../data/sections';
 import type { CollectionEntry } from 'astro:content';
 
 interface Props {
@@ -14,22 +14,29 @@ interface Props {
 }
 
 const { entry, locale = defaultLocale } = Astro.props;
-const { title, description, summary, sequenceStep, sources, updated } = entry.data;
+const { title, description, summary, sequenceStep, sources, updated, date } = entry.data;
 
-// An article marks its own category in the header nav, read from sequence.ts
-// rather than stored on the article.
-const activeCategory = sequenceStep !== null ? categoryOfStep(sequenceStep) : undefined;
+// An article marks its own section in the header nav: news by its folder,
+// everything else belongs to Почеток во Германија.
+const activeSection = sectionOfArticle(entry.id);
+
+// News carries its date above the title: "16 октомври 2026".
+const newsDate =
+  date &&
+  new Intl.DateTimeFormat(intlLocale[locale], { day: 'numeric', month: 'long', year: 'numeric' }).format(date);
 ---
 
 <BaseLayout
   title={title}
   description={description}
   locale={locale}
-  activeCategory={activeCategory}
+  activeSection={activeSection}
 >
   <article class="article wrap">
     {/* Only rendered when the article is part of the sequence. */}
     {sequenceStep !== null && <SequenceStrip step={sequenceStep} locale={locale} />}
+
+    {newsDate && <p class="article__date"><time datetime={date!.toISOString().slice(0, 10)}>{newsDate}</time></p>}
 
     <h1>{title}</h1>
 
@@ -44,3 +51,12 @@ const activeCategory = sequenceStep !== null ? categoryOfStep(sequenceStep) : un
     {sequenceStep !== null && <NextStep step={sequenceStep} locale={locale} />}
   </article>
 </BaseLayout>
+
+<style>
+  .article__date {
+    font-family: var(--font-ui);
+    font-size: 0.875rem;
+    color: var(--ink-quiet);
+    margin-block-end: var(--space-1);
+  }
+</style>

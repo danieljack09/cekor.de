@@ -16,7 +16,7 @@ const ui = {
     'site.description':
       'Германија, чекор по чекор. Водич на македонски за живот и работа во Германија, со линкови до официјални извори.',
 
-    'nav.categories': 'Категории',
+    'nav.sections': 'Делови на сајтот',
 
     'article.summary': 'На кратко',
     'article.checked': 'Последна проверка',
@@ -32,12 +32,12 @@ const ui = {
     'home.emptyNote':
       'Упатствата сè уште се пишуваат. Ниедно не е објавено додека не биде проверено со официјален извор.',
 
-    'home.upcoming': 'Што подготвуваме',
-    'home.upcomingNote':
-      'Темите подолу сè уште не се објавени, па затоа не се линкови.',
+    // Почеток во Германија: guides that are not one of the nine steps.
+    'pocetok.other': 'Други водичи',
+    'pocetok.all': 'Сите чекори',
 
-    // Heading over articles in a category that are not one of the nine steps.
-    'category.other': 'Останато во темата',
+    'novosti.all': 'Сите новости',
+    'novosti.emptyNote': 'Првите новости се пишуваат. Секоја ќе има линк до официјален извор.',
 
     'page.zaNas': 'За нас',
     'page.kontakt': 'Контакт',

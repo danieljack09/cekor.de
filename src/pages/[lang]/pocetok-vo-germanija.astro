@@ -1,0 +1,78 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { activeLocales, localePath, type Locale } from '../../i18n/config';
+import { useTranslations } from '../../i18n/ui';
+import { categoryMeta, sequence, stepNumber } from '../../data/sequence';
+import { sectionById } from '../../data/sections';
+import { articlePath, otherGuides } from '../../lib/articles';
+
+export function getStaticPaths() {
+  return activeLocales.map((lang) => ({ params: { lang } }));
+}
+
+const locale = Astro.params.lang as Locale;
+const t = useTranslations(locale);
+const section = sectionById('pocetok');
+
+// All nine steps, in order, read from src/data/sequence.ts. An unpublished
+// step is named in grey but never linked: there is no article behind it.
+const steps = sequence;
+const others = await otherGuides(locale);
+---
+
+<BaseLayout
+  title={section.label}
+  description={section.intro}
+  locale={locale}
+  activeSection="pocetok"
+>
+  <div class="wrap">
+    <h1>{section.label}</h1>
+    <p class="intro">{section.intro}</p>
+
+    <ol class="link-list">
+      {
+        steps.map((step) => (
+          <li>
+            {step.published ? (
+              <a href={localePath(locale, step.slug)}>
+                {stepNumber(step)}. {step.title}
+              </a>
+            ) : (
+              <span class="link-list__soon">
+                {stepNumber(step)}. {step.title}
+              </span>
+            )}
+            <span class="link-list__desc">{step.description}</span>
+            <span class="link-list__meta">{categoryMeta[step.category].label}</span>
+          </li>
+        ))
+      }
+    </ol>
+
+    {
+      others.length > 0 && (
+        <>
+          <h2 class="other">{t('pocetok.other')}</h2>
+          <ul class="link-list">
+            {others.map((article) => (
+              <li>
+                <a href={localePath(locale, articlePath(article))}>{article.data.title}</a>
+                <span class="link-list__desc">{article.data.description}</span>
+              </li>
+            ))}
+          </ul>
+        </>
+      )
+    }
+  </div>
+</BaseLayout>
+
+<style>
+  /* Separates the off-sequence guides from the nine steps without a card:
+     the steps above are numbered, these are not. */
+  .other {
+    font-size: 1.05rem;
+    margin-block: var(--space-5) var(--space-1);
+  }
+</style>

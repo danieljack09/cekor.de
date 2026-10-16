@@ -4,6 +4,7 @@ import { categories } from './data/sequence';
 
 // One folder per locale: src/content/articles/mk/vozacka-dozvola.mdx
 // -> id "mk/vozacka-dozvola" -> /mk/vozacka-dozvola/
+// News one level down: src/content/articles/mk/novosti/x.mdx -> /mk/novosti/x/
 //
 // Everything here is enforced at build time. A schema violation fails
 // `astro build` rather than shipping a broken article. The one rule that
@@ -59,6 +60,13 @@ const articles = defineCollection({
       .min(1, 'every article needs at least one source'),
 
     updated: z.coerce.date(),
+
+    /**
+     * News only (files in src/content/articles/<locale>/novosti/): the day the
+     * news is about. Required there, forbidden on guides - checked in
+     * src/lib/validate-articles.ts, since zod cannot see the file path.
+     */
+    date: z.coerce.date().nullable().default(null),
 
     /**
      * True if the body contains an affiliate link. Enforced: the body must

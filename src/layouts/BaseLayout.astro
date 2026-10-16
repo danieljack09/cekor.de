@@ -10,7 +10,7 @@ import {
   type Locale,
 } from '../i18n/config';
 import { useTranslations } from '../i18n/ui';
-import { categories, categoryMeta, type Category } from '../data/sequence';
+import { publishedSections, type SectionId } from '../data/sections';
 
 interface Props {
   /**
@@ -25,10 +25,10 @@ interface Props {
   /** 404 and other pages that must not be indexed. */
   noindex?: boolean;
   /**
-   * Marks a category as current in the header nav. Set by the category pages
-   * and by ArticleLayout, from the article's own position in the sequence.
+   * Marks a section as current in the header nav. Set by the section pages
+   * and by ArticleLayout, from the article's folder.
    */
-  activeCategory?: Category;
+  activeSection?: SectionId;
 }
 
 const {
@@ -37,7 +37,7 @@ const {
   locale = defaultLocale,
   showTagline = false,
   noindex = false,
-  activeCategory,
+  activeSection,
 } = Astro.props;
 const t = useTranslations(locale);
 
@@ -136,24 +136,23 @@ const alternates = activeLocales.map((code) => ({
         )
       }
 
-      {/* Category nav. Always all three, even when a category has nothing
-          published yet - these are the shape of the site, not a list of what
-          happens to exist. Three items fit on a 360px screen, so no hamburger. */}
-      <nav class="cat-nav" aria-label={t('nav.categories')}>
+      {/* Section nav, read from src/data/sections.ts. Published sections only:
+          an unpublished one has no page, so it is never a link. Wraps rather
+          than scrolls on a 360px screen, so no hamburger. */}
+      <nav class="cat-nav" aria-label={t('nav.sections')}>
         <div class="wrap">
           <ul>
             {
-              categories.map((category) => {
-                const meta = categoryMeta[category];
-                const href = localePath(locale, meta.slug);
+              publishedSections().map((section) => {
+                const href = localePath(locale, section.slug);
                 return (
                   <li>
                     <a
-                      class:list={['cat-nav__link', activeCategory === category && 'is-active']}
+                      class:list={['cat-nav__link', activeSection === section.id && 'is-active']}
                       href={href}
                       aria-current={here === href ? 'page' : undefined}
                     >
-                      {meta.label}
+                      {section.label}
                     </a>
                   </li>
                 );

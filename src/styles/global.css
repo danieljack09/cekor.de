@@ -371,7 +371,7 @@ a:hover {
 }
 
 /* --------------------------------------------------------------------------
-   Category nav - a row under the wordmark, never a hamburger
+   Section nav - a row under the wordmark, never a hamburger
    -------------------------------------------------------------------------- */
 
 .cat-nav {
@@ -411,6 +411,60 @@ a:hover {
 .cat-nav__link.is-active {
   color: var(--paper);
   border-block-end-color: var(--ochre);
+}
+
+/* --------------------------------------------------------------------------
+   Link lists - the steps, guides and news on the landing and section pages.
+   Hairline rules, no cards, no fill.
+   -------------------------------------------------------------------------- */
+
+.link-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-family: var(--font-ui);
+}
+
+.link-list li {
+  margin: 0;
+  padding-block: var(--space-2);
+  border-block-end: 1px solid var(--rule);
+}
+
+.link-list__meta,
+.link-list__desc {
+  display: block;
+  font-size: 0.875rem;
+  color: var(--ink-quiet);
+}
+
+/* Not published: grey plain text. Not a link, and nothing may look like one. */
+.link-list__soon {
+  color: var(--ink-quiet);
+}
+
+/* The way on to the full list, under a preview. */
+.more {
+  font-family: var(--font-ui);
+  margin-block: var(--space-2) 0;
+}
+
+.intro {
+  color: var(--ink-quiet);
+  margin-block-end: var(--space-4);
+}
+
+.empty__headline {
+  font-family: var(--font-ui);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--green);
+  margin-block-end: var(--space-1);
+}
+
+.empty__note {
+  color: var(--ink-quiet);
+  margin-block-end: 0;
 }
 
 /* --------------------------------------------------------------------------

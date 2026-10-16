@@ -5,3 +5,8 @@
 # edge answers / with a real 301 and no HTML round trip. That file stays only
 # as a fallback if dist/ is ever served by something other than Cloudflare.
 /  /mk/  301
+
+# The old category pages. Categories are now labels on the Почеток page.
+/mk/dokumenti/  /mk/pocetok-vo-germanija/  301
+/mk/pari/       /mk/pocetok-vo-germanija/  301
+/mk/rabota/     /mk/pocetok-vo-germanija/  301

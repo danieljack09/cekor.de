@@ -1,15 +1,10 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { activeLocales, localePath, type Locale } from '../../i18n/config';
+import { activeLocales, intlLocale, localePath, type Locale } from '../../i18n/config';
 import { useTranslations } from '../../i18n/ui';
-import {
-  byCategory,
-  categories,
-  categoryMeta,
-  publishedSteps,
-  stepNumber,
-  upcomingByCategory,
-} from '../../data/sequence';
+import { publishedSteps, stepNumber } from '../../data/sequence';
+import { publishedSections } from '../../data/sections';
+import { articlePath, newsArticles } from '../../lib/articles';
 
 export function getStaticPaths() {
   return activeLocales.map((lang) => ({ params: { lang } }));
@@ -18,188 +13,112 @@ export function getStaticPaths() {
 const locale = Astro.params.lang as Locale;
 const t = useTranslations(locale);
 
-// Read from src/data/sequence.ts - nothing here duplicates that list.
-// Unpublished steps are never LINKED: there is no article behind them, and a
-// dead link on a site whose product is trust costs more than a missing one.
-// They are still named, as plain grey text, so a visitor can see what is coming.
-const published = publishedSteps();
-const groups = categories
-  .map((category) => ({ category, steps: byCategory(category) }))
-  .filter((group) => group.steps.length > 0);
+// How many items each section previews here. The full list is one link away.
+const PREVIEW = 3;
 
-const upcoming = categories
-  .map((category) => ({ category, steps: upcomingByCategory(category) }))
-  .filter((group) => group.steps.length > 0);
+// One block per published section, read from src/data/sections.ts. An
+// unpublished section is not shown at all - there is no page to link to.
+const sections = publishedSections();
+
+// The steps come from src/data/sequence.ts; only published ones are links.
+const steps = publishedSteps().slice(0, PREVIEW);
+const news = (await newsArticles(locale)).slice(0, PREVIEW);
+
+const formatDate = new Intl.DateTimeFormat(intlLocale[locale], {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+}).format;
 ---
 
 {/* No `title`: BaseLayout composes the homepage pattern, Чекор — tagline. */}
 <BaseLayout description={t('site.description')} locale={locale} showTagline>
   <div class="wrap">
     {
-      published.length === 0 ? (
-        <div class="empty">
-          <p class="empty__headline">{t('home.empty')}</p>
-          <p class="empty__note">{t('home.emptyNote')}</p>
-        </div>
-      ) : (
-        groups.map((group) => (
-          <section class="group">
-            {/* The heading is the way into the category page. */}
-            <h2 class="group__heading">
-              <a href={localePath(locale, categoryMeta[group.category].slug)}>
-                {categoryMeta[group.category].label}
-              </a>
+      sections.map((section) => {
+        const href = localePath(locale, section.slug);
+        return (
+          <section class="block">
+            <h2 class="block__heading">
+              <a href={href}>{section.label}</a>
             </h2>
-            <ul class="group__list">
-              {group.steps.map((step) => (
-                <li>
-                  <a href={localePath(locale, step.slug)}>
-                    {stepNumber(step)}. {step.title}
-                  </a>
-                  <span class="group__desc">{step.description}</span>
-                </li>
+            <p class="block__intro">{section.intro}</p>
+
+            {section.id === 'pocetok' &&
+              (steps.length === 0 ? (
+                <p class="block__soon">{t('home.empty')}</p>
+              ) : (
+                <>
+                  <ul class="link-list">
+                    {steps.map((step) => (
+                      <li>
+                        <a href={localePath(locale, step.slug)}>
+                          {stepNumber(step)}. {step.title}
+                        </a>
+                        <span class="link-list__desc">{step.description}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <p class="more">
+                    <a href={href}>{t('pocetok.all')} →</a>
+                  </p>
+                </>
               ))}
-            </ul>
+
+            {section.id === 'novosti' &&
+              (news.length === 0 ? (
+                <p class="block__soon">{t('home.empty')}</p>
+              ) : (
+                <>
+                  <ul class="link-list">
+                    {news.map((article) => (
+                      <li>
+                        <span class="link-list__meta">{formatDate(article.data.date!)}</span>
+                        <a href={localePath(locale, articlePath(article))}>{article.data.title}</a>
+                        <span class="link-list__desc">{article.data.description}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <p class="more">
+                    <a href={href}>{t('novosti.all')} →</a>
+                  </p>
+                </>
+              ))}
           </section>
-        ))
-      )
-    }
-
-    {/* What the site will cover. Plain text, no links - these articles do not
-        exist yet. Shrinks on its own as steps are published. */}
-    {
-      upcoming.length > 0 && (
-        <section class="soon">
-          <h2 class="soon__heading">{t('home.upcoming')}</h2>
-          <p class="soon__note">{t('home.upcomingNote')}</p>
-
-          {upcoming.map((group) => (
-            <div class="soon__group">
-              <h3 class="soon__category">{categoryMeta[group.category].label}</h3>
-              <ul class="soon__list">
-                {group.steps.map((step) => (
-                  <li>
-                    <span class="soon__title">{step.title}</span>
-                    <span class="soon__desc">{step.description}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </section>
-      )
+        );
+      })
     }
   </div>
 </BaseLayout>
 
 <style>
-  .empty__headline {
-    font-family: var(--font-ui);
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: var(--green);
-    margin-block-end: var(--space-1);
-  }
-
-  .empty__note {
-    color: var(--ink-quiet);
-    margin-block-end: 0;
-  }
-
-  .group + .group {
+  .block + .block {
     margin-block-start: var(--space-6);
+  }
+
+  .block__heading {
+    margin-block-start: 0;
   }
 
   /* The link inherits the heading's colour and size; only the underline marks
      it as a link. */
-  .group__heading a {
+  .block__heading a {
     color: inherit;
     text-decoration-thickness: 1px;
   }
 
-  .group__heading a:hover {
+  .block__heading a:hover {
     text-decoration-thickness: 2px;
   }
 
-  .group__list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
+  .block__intro {
+    color: var(--ink-quiet);
+    margin-block-end: var(--space-2);
+  }
+
+  .block__soon {
     font-family: var(--font-ui);
-  }
-
-  .group__list li {
-    margin: 0;
-    padding-block: var(--space-2);
-    border-block-end: 1px solid var(--rule);
-  }
-
-  .group__desc {
-    display: block;
-    font-size: 0.875rem;
     color: var(--ink-quiet);
-  }
-
-  /* --- What is coming -----------------------------------------------------
-     A hairline rule and a lot of space, not a box: no card, no fill. Every
-     line here is grey, so the eye reads the whole block as "not yet". */
-
-  .soon {
-    margin-block-start: var(--space-6);
-    border-block-start: 1px solid var(--rule);
-    padding-block-start: var(--space-5);
-  }
-
-  .soon__heading {
-    font-size: 1.05rem;
-    /* Quieter than a live section heading - this is a promise, not content. */
-    color: var(--ink-quiet);
-    margin-block: 0 var(--space-1);
-  }
-
-  .soon__note {
-    font-family: var(--font-ui);
-    font-size: 0.875rem;
-    color: var(--ink-quiet);
-    margin-block-end: var(--space-5);
-  }
-
-  .soon__group + .soon__group {
-    margin-block-start: var(--space-5);
-  }
-
-  .soon__category {
-    font-size: 0.9375rem;
-    color: var(--ink-quiet);
-    margin-block: 0 var(--space-1);
-  }
-
-  .soon__list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    font-family: var(--font-ui);
-  }
-
-  .soon__list li {
-    margin: 0;
-    padding-block: var(--space-3);
-    border-block-end: 1px solid var(--rule);
-    /* Not a link, and nothing here may look like one. */
-    color: var(--ink-quiet);
-  }
-
-  .soon__title {
-    display: block;
-    font-family: var(--font-ui);
-    /* The title keeps the body size; only the description steps down. */
-    margin-block-end: var(--space-1);
-  }
-
-  .soon__desc {
-    display: block;
-    font-size: 0.9em;
-    color: var(--ink);
-    line-height: 1.6;
+    margin-block-end: 0;
   }
 </style>

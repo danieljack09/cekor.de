@@ -27,44 +27,56 @@ and may not be a confident reader.
 ## The sequence is the single source of truth
 
 `src/data/sequence.ts` holds the nine steps. **Nothing may duplicate that
-list.** The homepage groups it by category; `ArticleLayout` reads it for the
+list.** The Почеток во Германија page lists it in order, the landing page
+previews it; `ArticleLayout` reads it for the
 strip and the "Следен чекор →" link; `validate-articles.ts` checks every
 article's `sequenceStep` against it and fails the build on a mismatch.
 
 `published: false` gates visibility everywhere. An unpublished step is never
-rendered as a link — **no dead links anywhere on the site.** When a category has
-nothing published it shows the "Наскоро." empty state, on the homepage and on
-its own page.
+rendered as a link — **no dead links anywhere on the site.** It is still named,
+in grey plain text, on the Почеток page.
 
 Publishing a step is two edits: flip `published` in `sequence.ts`, and have an
 article file whose slug matches.
 
-`categoryMeta` in the same file holds each category's display label, URL slug
-and intro line. The three **category slugs are reserved** — an article using one
-fails the build, since it would collide with a category page.
+`categoryMeta` in the same file holds each category's display label. Categories
+(Документи, Пари, Работа) are **labels on a step, not navigation** — there are
+no category pages. Their old URLs (`/mk/dokumenti/` etc.) 301 to the Почеток
+page in `public/_redirects`, so those slugs stay reserved.
 
 **Editing `sequence.ts` from PowerShell 5.1 corrupts it.** `Get-Content -Raw`
 piped into `Set-Content`/`Out-File` re-encodes the Cyrillic into mojibake and
 the build then fails with a bare `Expected "}" but found "´"`. Edit it with a
 real editor, or with node reading and writing `'utf8'` explicitly.
 
-## Category navigation
+## Sections and navigation
 
-Three links in the green header under the wordmark: Документи, Пари, Работа.
-**Always all three**, even when a category has nothing published — they are the
-shape of the site, not a list of what happens to exist. No hamburger; three
-items fit on a 360px screen, and the row wraps if a label grows.
+`src/data/sections.ts` is the single source of truth for the top-level
+sections, the same way `sequence.ts` is for steps:
 
-The active category gets a 2px `--ochre` bottom border. Every link carries a
+| Section | URL | Status |
+|---|---|---|
+| Почеток во Германија | `/mk/pocetok-vo-germanija/` | the nine steps in order + "Други водичи" (guides with `sequenceStep: null`) |
+| Новости | `/mk/novosti/`, articles at `/mk/novosti/<slug>/` | news, newest first; "Наскоро." while empty |
+| Попусти (placeholder) | — | `published: false`. Name, slug and design not decided |
+
+The landing page `/mk/` has one block per **published** section: label (h2
+link), intro line, a preview of three items and a "Сите … →" link.
+
+The header nav under the wordmark lists the published sections. An unpublished
+section is never in the nav, on the landing page, or linked anywhere. No
+hamburger; the row wraps on a 360px screen.
+
+The active section gets a 2px `--ochre` bottom border. Every link carries a
 transparent 2px border so marking one active shifts nothing. `BaseLayout` takes
-an `activeCategory` prop: category pages pass their own, and `ArticleLayout`
-derives it from the article's `sequenceStep` via `categoryOfStep()`. `aria-current="page"`
-is set only when the URL actually matches, so an article page shows the visual
-hint without claiming to be the category page.
+an `activeSection` prop: section pages pass their own, and `ArticleLayout`
+derives it from the article's folder via `sectionOfArticle()` — news for
+`novosti/`, Почеток for everything else. `aria-current="page"` is set only
+when the URL actually matches, so an article page shows the visual hint without
+claiming to be the section page.
 
-Category pages are one route, `src/pages/[lang]/[category].astro`, whose
-`getStaticPaths` emits only the three category slugs — so it cannot swallow an
-article URL.
+**Every section slug is reserved** (published or not), plus the old category
+slugs. An article using one fails the build.
 
 ## Content rules
 
@@ -94,8 +106,10 @@ article URL.
 
 ## Content schema and validation
 
-Collection `articles`, defined in `src/content.config.ts`. Files live in
-`src/content/articles/<locale>/<latin-slug>.mdx`.
+Collection `articles`, defined in `src/content.config.ts`. Guides live in
+`src/content/articles/<locale>/<latin-slug>.mdx` (URL `/mk/<slug>/`), news in
+`src/content/articles/<locale>/novosti/<latin-slug>.mdx` (URL `/mk/novosti/<slug>/`).
+The folder decides the section; there is no `section` field.
 
 | Field | Type | Rule |
 |---|---|---|
@@ -105,6 +119,8 @@ Collection `articles`, defined in `src/content.config.ts`. Files live in
 | `sequenceStep` | number \| null | 1–9 or null; default null |
 | `sources` | `{ label, url }[]` | **at least one**, every `url` **https** |
 | `updated` | date | required, coerced |
+| `date` | date | null | **news: required**, the day the news is about. Guides: must be absent |
+| `category` | string | null | guides off the sequence only, as a label. Steps and news: absent |
 | `affiliate` | boolean | default `false` |
 
 Quote any frontmatter value containing `": "` — an unquoted YAML scalar cannot
@@ -127,7 +143,9 @@ which runs on every build:
 - `affiliate: true` requires the body to contain "Werbelink"
 - the body containing "Werbelink" requires `affiliate: true`
 - `sequenceStep` must match the slug that step points at in `sequence.ts`
-- the slug must not be a reserved category slug (`dokumenti`, `pari`, `rabota`)
+- the slug must not be a reserved slug (section slugs + `dokumenti`, `pari`, `rabota`)
+- news needs `date`, and no `sequenceStep` or `category`; guides may not set `date`
+- nothing deeper than `<locale>/<slug>` or `<locale>/novosti/<slug>`
 - the locale folder must be an active locale
 
 ## Technical rules
@@ -167,7 +185,11 @@ No route changes, and no existing `/mk/` URL moves.
    `sequenceStep`, `sources` (≥1, https), `updated`, `affiliate`.
    Quote any value containing `": "` or YAML will reject it.
 3. Write the body. Use `<Callout variant="важно">` / `variant="внимание"`.
-4. Flip `published: true` in `sequence.ts` so the homepage links it.
+4. Flip `published: true` in `sequence.ts` so the Почеток page and the landing
+   page link it.
+
+News: same, but in `src/content/articles/mk/novosti/`, with `date` and no
+`sequenceStep`. It appears on `/mk/novosti/` and the landing page on its own.
 5. `npm run build` — validation failures are build failures.
 
 **Do not invent facts.** If current German rules are needed, say so and ask —
@@ -183,21 +205,25 @@ there, including by node and npm.
 ```
 src/
   data/sequence.ts           THE nine steps + categoryMeta. Single source of truth.
+  data/sections.ts           THE top-level sections + reserved slugs.
   content.config.ts          article schema (zod, fails the build)
-  content/articles/mk/       one folder per locale
+  content/articles/mk/       one folder per locale; news in mk/novosti/
   lib/validate-articles.ts   body + sequence checks, fails the build
+  lib/articles.ts            news + off-sequence guide lists
   i18n/config.ts             locale registry, hreflang, og + Intl locales
   i18n/ui.ts                 all UI strings, per locale
   layouts/BaseLayout.astro   header, footer, preloads, SEO, analytics stub
   layouts/ArticleLayout.astro
   components/                Callout, SequenceStrip, SummaryBox, SourceLine, NextStep
   pages/[lang]/              every real URL carries a locale prefix
-  pages/[lang]/[category].astro  the three category pages
-  pages/[lang]/[...slug].astro   articles (+ runs validate-articles)
+  pages/[lang]/index.astro   landing page, previews per section
+  pages/[lang]/pocetok-vo-germanija.astro
+  pages/[lang]/novosti/index.astro
+  pages/[lang]/[...slug].astro   guides and news (+ runs validate-articles)
   pages/404.astro            outside [lang]: a 404 has no locale to assume
   styles/global.css          design tokens, all shared CSS
 scripts/sync-fonts.mjs       copies Cyrillic woff2 out of node_modules
-public/_redirects            / -> /mk/ (301)
+public/_redirects            / -> /mk/, old category pages -> Почеток (301)
 public/_headers              immutable caching for /fonts/ and /_astro/
 ```
 
@@ -243,5 +269,8 @@ against a future addition, but there is currently nothing to disable.
 - Impressum and Datenschutz are `TODO` stubs. **Both must be generated from
   eRecht24 before launch** (links are in the page comments). Affiliate links
   make the site commercial, so § 5 DDG applies in full.
-- All nine steps are `published: false`, so the homepage shows "Наскоро." The
-  one placeholder article is reachable only by direct URL, by design.
+- The Попусти section (discounted products, affiliate). Placeholder in
+  `sections.ts` with `published: false`. Needs the Werbelink component first.
+- No news articles yet: `/mk/novosti/` shows "Наскоро."
+- Open: may news cite news outlets, or only official sources? Until decided,
+  the content rules above apply unchanged.

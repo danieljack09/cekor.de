@@ -569,6 +569,102 @@ a:hover {
   margin-block-start: var(--space-3);
 }
 
+/* --------------------------------------------------------------------------
+   Spotlight - the one bold entry-point card (homepage and the Почеток
+   index). Same accent language as .card, just bigger: this is the single
+   thing on the page allowed to be louder than everything else.
+   -------------------------------------------------------------------------- */
+
+.spotlight {
+  display: block;
+  text-decoration: none;
+  background: var(--green-pale);
+  border: 1px solid var(--green-pale);
+  border-inline-start: var(--border-accent) solid var(--ochre);
+  padding: var(--space-4);
+  margin-block-end: var(--space-4);
+}
+
+.spotlight:hover {
+  border-color: var(--ochre);
+}
+
+.spotlight__eyebrow {
+  display: block;
+  font-family: var(--font-ui);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--ochre);
+  margin-block-end: var(--space-1);
+}
+
+.spotlight__title {
+  display: block;
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 1.625rem;
+  line-height: 1.2;
+  color: var(--green);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.18em;
+  margin-block-end: var(--space-1);
+}
+
+@media (min-width: 640px) {
+  .spotlight__title {
+    font-size: 2rem;
+  }
+}
+
+.spotlight__desc {
+  display: block;
+  font-size: 1rem;
+  color: var(--ink);
+  max-width: 46ch;
+}
+
+/* --------------------------------------------------------------------------
+   Scroll rail - a row of cards that scrolls instead of wrapping, for "see
+   everything" previews (all nine steps, the news list) without an arbitrary
+   preview cutoff. Native CSS scroll-snap: no JavaScript, works with touch,
+   wheel, and keyboard (the container is focusable). Bleeds to the column's
+   own edges so the next card peeks at the right - that peek is the only cue
+   a reader needs that there is more to scroll to.
+   -------------------------------------------------------------------------- */
+
+.rail-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x proximity;
+  scrollbar-color: var(--green-pale) transparent;
+  scrollbar-width: thin;
+  margin-inline: calc(var(--gutter) * -1);
+  padding-inline: var(--gutter);
+  padding-block-end: var(--space-2);
+}
+
+.rail-scroll:focus-visible {
+  outline: var(--border-accent) solid var(--ochre);
+  outline-offset: -2px;
+}
+
+.rail-scroll__track {
+  display: flex;
+  gap: var(--space-3);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  width: max-content;
+}
+
+.rail-scroll .card {
+  width: 260px;
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+}
+
 /* The way on to the full list, under a preview. */
 .more {
   font-family: var(--font-ui);

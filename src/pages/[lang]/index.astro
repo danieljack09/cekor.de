@@ -2,6 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ArticleCard from '../../components/ArticleCard.astro';
 import SequenceRail from '../../components/SequenceRail.astro';
+import SpotlightCard from '../../components/SpotlightCard.astro';
 import { activeLocales, intlLocale, localePath, type Locale } from '../../i18n/config';
 import { useTranslations } from '../../i18n/ui';
 import { publishedSteps, stepNumber, totalSteps } from '../../data/sequence';
@@ -15,16 +16,19 @@ export function getStaticPaths() {
 const locale = Astro.params.lang as Locale;
 const t = useTranslations(locale);
 
-// How many items each section previews here. The full list is one link away.
-const PREVIEW = 3;
+// News grows without bound; cap the homepage teaser. There is no cap on the
+// steps - there are only ever nine, and the scroll rail handles the row fine.
+const PREVIEW_NEWS = 6;
 
 // One block per published section, read from src/data/sections.ts. An
 // unpublished section is not shown at all - there is no page to link to.
 const sections = publishedSections();
 
 // The steps come from src/data/sequence.ts; only published ones are links.
-const steps = publishedSteps().slice(0, PREVIEW);
-const news = (await newsArticles(locale)).slice(0, PREVIEW);
+// The first one becomes the spotlight CTA below; the rest scroll in a rail.
+const allSteps = publishedSteps();
+const [firstStep, ...restSteps] = allSteps;
+const news = (await newsArticles(locale)).slice(0, PREVIEW_NEWS);
 
 const formatDate = new Intl.DateTimeFormat(intlLocale[locale], {
   day: 'numeric',
@@ -49,23 +53,34 @@ const formatDate = new Intl.DateTimeFormat(intlLocale[locale], {
             {section.id === 'pocetok' && <SequenceRail />}
 
             {section.id === 'pocetok' &&
-              (steps.length === 0 ? (
+              (!firstStep ? (
                 <p class="block__soon">{t('home.empty')}</p>
               ) : (
                 <>
-                  <ul class="card-grid">
-                    {steps.map((step) => (
-                      <li>
-                        <ArticleCard
-                          href={localePath(locale, step.slug)}
-                          title={step.title}
-                          description={step.description}
-                          badge={`${stepNumber(step)} / ${totalSteps}`}
-                          current={stepNumber(step) === 1}
-                        />
-                      </li>
-                    ))}
-                  </ul>
+                  <SpotlightCard
+                    href={localePath(locale, firstStep.slug)}
+                    eyebrow={t('home.start')}
+                    title={firstStep.title}
+                    description={firstStep.description}
+                  />
+
+                  {restSteps.length > 0 && (
+                    <div class="rail-scroll" tabindex="0" role="group" aria-label={section.label}>
+                      <ul class="rail-scroll__track">
+                        {restSteps.map((step) => (
+                          <li>
+                            <ArticleCard
+                              href={localePath(locale, step.slug)}
+                              title={step.title}
+                              description={step.description}
+                              badge={`${stepNumber(step)} / ${totalSteps}`}
+                            />
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
                   <p class="more">
                     <a href={href}>{t('pocetok.all')} →</a>
                   </p>
@@ -77,18 +92,20 @@ const formatDate = new Intl.DateTimeFormat(intlLocale[locale], {
                 <p class="block__soon">{t('home.empty')}</p>
               ) : (
                 <>
-                  <ul class="card-grid card-grid--3up">
-                    {news.map((article) => (
-                      <li>
-                        <ArticleCard
-                          href={localePath(locale, articlePath(article))}
-                          title={article.data.title}
-                          description={article.data.description}
-                          badge={formatDate(article.data.date!)}
-                        />
-                      </li>
-                    ))}
-                  </ul>
+                  <div class="rail-scroll" tabindex="0" role="group" aria-label={section.label}>
+                    <ul class="rail-scroll__track">
+                      {news.map((article) => (
+                        <li>
+                          <ArticleCard
+                            href={localePath(locale, articlePath(article))}
+                            title={article.data.title}
+                            description={article.data.description}
+                            badge={formatDate(article.data.date!)}
+                          />
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                   <p class="more">
                     <a href={href}>{t('novosti.all')} →</a>
                   </p>

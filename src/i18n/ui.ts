@@ -36,6 +36,9 @@ const ui = {
     'pocetok.other': 'Други водичи',
     'pocetok.all': 'Сите чекори',
 
+    // The bold entry-point card: homepage and the Почеток index.
+    'home.start': 'Почни тука',
+
     'novosti.all': 'Сите новости',
     'novosti.emptyNote': 'Првите новости се пишуваат. Секоја ќе има линк до официјален извор.',
 

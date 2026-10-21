@@ -2,6 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ArticleCard from '../../components/ArticleCard.astro';
 import SequenceRail from '../../components/SequenceRail.astro';
+import SpotlightCard from '../../components/SpotlightCard.astro';
 import { activeLocales, localePath, type Locale } from '../../i18n/config';
 import { useTranslations } from '../../i18n/ui';
 import { categoryMeta, sequence, stepNumber, totalSteps } from '../../data/sequence';
@@ -21,6 +22,7 @@ const section = sectionById('pocetok');
 const steps = sequence;
 const published = steps.filter((step) => step.published);
 const pending = steps.filter((step) => !step.published);
+const [firstStep, ...restPublished] = published;
 const others = await otherGuides(locale);
 ---
 
@@ -37,9 +39,20 @@ const others = await otherGuides(locale);
 
     <SequenceRail />
 
+    {
+      firstStep && (
+        <SpotlightCard
+          href={localePath(locale, firstStep.slug)}
+          eyebrow={t('home.start')}
+          title={firstStep.title}
+          description={firstStep.description}
+        />
+      )
+    }
+
     <ul class="card-grid">
       {
-        published.map((step) => (
+        restPublished.map((step) => (
           <li>
             <ArticleCard
               href={localePath(locale, step.slug)}
@@ -47,7 +60,6 @@ const others = await otherGuides(locale);
               description={step.description}
               badge={`${stepNumber(step)} / ${totalSteps}`}
               meta={categoryMeta[step.category].label}
-              current={stepNumber(step) === 1}
             />
           </li>
         ))

@@ -1,0 +1,16 @@
+---
+interface Props {
+  href: string;
+  eyebrow: string;
+  title: string;
+  description: string;
+}
+
+const { href, eyebrow, title, description } = Astro.props;
+---
+
+<a class="spotlight" href={href}>
+  <span class="spotlight__eyebrow">{eyebrow}</span>
+  <span class="spotlight__title">{title}</span>
+  <span class="spotlight__desc">{description}</span>
+</a>

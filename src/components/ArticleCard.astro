@@ -1,0 +1,22 @@
+---
+interface Props {
+  href: string;
+  title: string;
+  description: string;
+  /** Small line above the title - a step number ("1 / 9"), a date, or omitted. */
+  badge?: string;
+  /** Small line below the description - a category label, or omitted. */
+  meta?: string;
+  /** The one step a new arrival is about to start. See .rail in global.css. */
+  current?: boolean;
+}
+
+const { href, title, description, badge, meta, current = false } = Astro.props;
+---
+
+<a class:list={['card', current && 'card--current']} href={href}>
+  {badge && <span class="card__badge">{badge}</span>}
+  <span class="card__title">{title}</span>
+  <span class="card__desc">{description}</span>
+  {meta && <span class="card__meta">{meta}</span>}
+</a>

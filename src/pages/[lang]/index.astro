@@ -1,8 +1,10 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import ArticleCard from '../../components/ArticleCard.astro';
+import SequenceRail from '../../components/SequenceRail.astro';
 import { activeLocales, intlLocale, localePath, type Locale } from '../../i18n/config';
 import { useTranslations } from '../../i18n/ui';
-import { publishedSteps, stepNumber } from '../../data/sequence';
+import { publishedSteps, stepNumber, totalSteps } from '../../data/sequence';
 import { publishedSections } from '../../data/sections';
 import { articlePath, newsArticles } from '../../lib/articles';
 
@@ -32,8 +34,8 @@ const formatDate = new Intl.DateTimeFormat(intlLocale[locale], {
 ---
 
 {/* No `title`: BaseLayout composes the homepage pattern, Чекор — tagline. */}
-<BaseLayout description={t('site.description')} locale={locale} showTagline>
-  <div class="wrap">
+<BaseLayout description={t('site.description')} locale={locale} showTagline wide>
+  <div class="wrap wrap--wide">
     {
       sections.map((section) => {
         const href = localePath(locale, section.slug);
@@ -44,18 +46,23 @@ const formatDate = new Intl.DateTimeFormat(intlLocale[locale], {
             </h2>
             <p class="block__intro">{section.intro}</p>
 
+            {section.id === 'pocetok' && <SequenceRail />}
+
             {section.id === 'pocetok' &&
               (steps.length === 0 ? (
                 <p class="block__soon">{t('home.empty')}</p>
               ) : (
                 <>
-                  <ul class="link-list">
+                  <ul class="card-grid">
                     {steps.map((step) => (
                       <li>
-                        <a href={localePath(locale, step.slug)}>
-                          {stepNumber(step)}. {step.title}
-                        </a>
-                        <span class="link-list__desc">{step.description}</span>
+                        <ArticleCard
+                          href={localePath(locale, step.slug)}
+                          title={step.title}
+                          description={step.description}
+                          badge={`${stepNumber(step)} / ${totalSteps}`}
+                          current={stepNumber(step) === 1}
+                        />
                       </li>
                     ))}
                   </ul>
@@ -70,12 +77,15 @@ const formatDate = new Intl.DateTimeFormat(intlLocale[locale], {
                 <p class="block__soon">{t('home.empty')}</p>
               ) : (
                 <>
-                  <ul class="link-list">
+                  <ul class="card-grid card-grid--3up">
                     {news.map((article) => (
                       <li>
-                        <span class="link-list__meta">{formatDate(article.data.date!)}</span>
-                        <a href={localePath(locale, articlePath(article))}>{article.data.title}</a>
-                        <span class="link-list__desc">{article.data.description}</span>
+                        <ArticleCard
+                          href={localePath(locale, articlePath(article))}
+                          title={article.data.title}
+                          description={article.data.description}
+                          badge={formatDate(article.data.date!)}
+                        />
                       </li>
                     ))}
                   </ul>

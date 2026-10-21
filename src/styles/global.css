@@ -80,6 +80,10 @@
      own family and size, and the footer stopped lining up with the header and
      main. The gutter is added on top so the measure stays honest. */
   --measure: 680px;
+  /* Landing page and section indexes only (.wrap--wide) - a wider column for
+     the card grid. Article pages keep --measure: a long-form read stays at
+     62 characters regardless of what the index pages do. */
+  --measure-wide: 1040px;
   --gutter: 1.25rem;
 
   --step: 0.25rem;
@@ -168,6 +172,13 @@ video {
   max-width: calc(var(--measure) + var(--gutter) * 2);
   margin-inline: auto;
   padding-inline: var(--gutter);
+}
+
+/* Landing page and section indexes (Почеток, Новости). Same left edge and
+   gutter as .wrap, just a wider column, so the header and footer can widen
+   to match on those pages without breaking the shared-edge rule. */
+.wrap--wide {
+  max-width: calc(var(--measure-wide) + var(--gutter) * 2);
 }
 
 .site-main {
@@ -414,33 +425,148 @@ a:hover {
 }
 
 /* --------------------------------------------------------------------------
-   Link lists - the steps, guides and news on the landing and section pages.
-   Hairline rules, no cards, no fill.
+   Sequence rail - the hero-scale nine-step strip on the landing page and the
+   Почеток index, above their card grids. Decorative (the surrounding
+   heading/intro already states the "nine steps, in order" fact in words),
+   so it carries no label of its own and is aria-hidden.
+
+   The site tracks no reader progress (no cookies, no local storage), so
+   there is no real "current step" here the way there is inside an article.
+   Bar 1 (Anmeldung) is marked as the starting point instead, because it
+   genuinely is the first thing every new arrival does; the rest render as
+   "ahead" of that.
    -------------------------------------------------------------------------- */
 
-.link-list {
+.rail {
+  margin-block: var(--space-3) var(--space-4);
+}
+
+.rail__bars {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 14px;
+}
+
+.rail__bar {
+  flex: 1 1 0;
+  height: 5px;
+  background: var(--green-pale);
+}
+
+.rail__bar.is-current {
+  height: 14px;
+  background: var(--ochre);
+}
+
+/* --------------------------------------------------------------------------
+   Card grid - the steps, guides and news on the landing page and the
+   Почеток / Новости indexes. Replaces the single-column link list there.
+   Flat fill, 1px outline, 3px left-border accent: the same accent language
+   as Callout/SummaryBox/NextStep, scaled up to card size. Article pages
+   never use this; they keep the single --measure column.
+   -------------------------------------------------------------------------- */
+
+.card-grid {
   list-style: none;
   padding: 0;
   margin: 0;
-  font-family: var(--font-ui);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-3);
 }
 
-.link-list li {
+@media (min-width: 760px) {
+  .card-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* News only: reads better at three across once the column is wide enough. */
+@media (min-width: 1000px) {
+  .card-grid--3up {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.card-grid li {
   margin: 0;
-  padding-block: var(--space-2);
-  border-block-end: 1px solid var(--rule);
 }
 
-.link-list__meta,
-.link-list__desc {
+.card {
   display: block;
+  text-decoration: none;
+  background: var(--paper);
+  border: 1px solid var(--green-pale);
+  border-inline-start: var(--border-accent) solid var(--green);
+  padding: var(--space-3);
+  height: 100%;
+}
+
+.card:hover {
+  border-color: var(--green);
+}
+
+/* The one step a new arrival is about to start - see .rail above. */
+.card--current {
+  border-inline-start-color: var(--ochre);
+}
+
+.card--current:hover {
+  border-inline-start-color: var(--ochre);
+}
+
+.card__badge {
+  display: block;
+  font-family: var(--font-ui);
   font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--green);
+  margin-block-end: var(--space-1);
+}
+
+.card--current .card__badge {
+  color: var(--ochre);
+}
+
+.card__title {
+  display: block;
+  font-family: var(--font-ui);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+  margin-block-end: var(--space-1);
+}
+
+.card:hover .card__title {
+  text-decoration-thickness: 2px;
+}
+
+.card__desc {
+  display: block;
+  font-family: var(--font-ui);
+  font-size: 0.9375rem;
   color: var(--ink-quiet);
 }
 
-/* Not published: grey plain text. Not a link, and nothing may look like one. */
-.link-list__soon {
+.card__meta {
+  display: block;
+  font-family: var(--font-ui);
+  font-size: 0.8125rem;
   color: var(--ink-quiet);
+  margin-block-start: var(--space-1);
+}
+
+/* An unpublished step: grey plain text, listed after the grid, never a card
+   and never a link - there is no article behind it yet. */
+.step-pending {
+  font-family: var(--font-ui);
+  font-size: 0.9375rem;
+  color: var(--ink-quiet);
+  margin-block-start: var(--space-3);
 }
 
 /* The way on to the full list, under a preview. */

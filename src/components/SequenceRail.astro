@@ -1,0 +1,19 @@
+---
+// The nine-step sequence, drawn as a hero-scale bar strip. Purely decorative:
+// the heading/intro next to it already states "nine steps, in order" in
+// words, so this carries no label of its own and is aria-hidden.
+//
+// The site tracks no reader progress (no cookies, no local storage - see
+// CLAUDE.md), so there is no real "current step" the way there is inside an
+// article (SequenceStrip.astro). Bar 1 is marked instead, because Anmeldung
+// genuinely is the first thing every new arrival does.
+import { totalSteps } from '../data/sequence';
+
+const bars = Array.from({ length: totalSteps }, (_, i) => i + 1);
+---
+
+<div class="rail" aria-hidden="true">
+  <div class="rail__bars">
+    {bars.map((n) => <span class:list={['rail__bar', n === 1 && 'is-current']} />)}
+  </div>
+</div>

@@ -29,6 +29,13 @@ interface Props {
    * and by ArticleLayout, from the article's folder.
    */
   activeSection?: SectionId;
+  /**
+   * The landing page and section indexes, whose own content uses the wider
+   * .wrap--wide column for a card grid. Widens the header and footer to
+   * match, so all three keep one shared left edge. Article pages leave this
+   * unset and keep the narrower reading column everywhere.
+   */
+  wide?: boolean;
 }
 
 const {
@@ -38,6 +45,7 @@ const {
   showTagline = false,
   noindex = false,
   activeSection,
+  wide = false,
 } = Astro.props;
 const t = useTranslations(locale);
 
@@ -123,14 +131,14 @@ const alternates = activeLocales.map((code) => ({
     <a class="skip-link" href="#content">{t('skip.content')}</a>
 
     <header class="site-header">
-      <div class="wrap site-header__bar">
+      <div class:list={['wrap', wide && 'wrap--wide', 'site-header__bar']}>
         <a class="site-header__name" href={home}>{siteName}</a>
       </div>
 
       {/* Homepage only, under the wordmark. */}
       {
         showTagline && (
-          <div class="wrap">
+          <div class:list={['wrap', wide && 'wrap--wide']}>
             <p class="site-header__tagline">{tagline}</p>
           </div>
         )
@@ -140,7 +148,7 @@ const alternates = activeLocales.map((code) => ({
           an unpublished one has no page, so it is never a link. Wraps rather
           than scrolls on a 360px screen, so no hamburger. */}
       <nav class="cat-nav" aria-label={t('nav.sections')}>
-        <div class="wrap">
+        <div class:list={['wrap', wide && 'wrap--wide']}>
           <ul>
             {
               publishedSections().map((section) => {
@@ -168,7 +176,7 @@ const alternates = activeLocales.map((code) => ({
     </main>
 
     <footer class="site-footer">
-      <div class="wrap">
+      <div class:list={['wrap', wide && 'wrap--wide']}>
         <ul>
           <li><a href={zaNas}>{t('page.zaNas')}</a></li>
           <li><a href={impressum}>{t('footer.impressum')}</a></li>

@@ -11,6 +11,7 @@ import {
 } from '../i18n/config';
 import { useTranslations } from '../i18n/ui';
 import { publishedSections, type SectionId } from '../data/sections';
+import { nextPublishedAfter } from '../data/sequence';
 
 interface Props {
   /**
@@ -20,8 +21,6 @@ interface Props {
   title?: string;
   description: string;
   locale?: Locale;
-  /** Homepage only: prints the tagline under the wordmark. */
-  showTagline?: boolean;
   /** 404 and other pages that must not be indexed. */
   noindex?: boolean;
   /**
@@ -42,7 +41,6 @@ const {
   title,
   description,
   locale = defaultLocale,
-  showTagline = false,
   noindex = false,
   activeSection,
   wide = false,
@@ -56,6 +54,11 @@ const tagline = t('site.tagline');
 const pageTitle = title ? `${title} — ${siteName}` : `${siteName} — ${tagline}`;
 
 const home = localePath(locale);
+// The header's "Започни тука" CTA, pointing at the first published step. No
+// equivalent of rakurs.mk's "request a quote" exists on an informational
+// site, so this is the closest real action: a way in, not a sales button.
+const firstStep = nextPublishedAfter(0);
+const ctaHref = firstStep ? localePath(locale, firstStep.slug) : undefined;
 const impressum = localePath(locale, 'impressum');
 const datenschutz = localePath(locale, 'datenschutz');
 const zaNas = localePath(locale, 'za-nas');
@@ -86,7 +89,7 @@ const alternates = activeLocales.map((code) => ({
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical.href} />
     <meta name="color-scheme" content="light" />
-    <meta name="theme-color" content="#1E4D3B" />
+    <meta name="theme-color" content="#1D70B8" />
     {noindex && <meta name="robots" content="noindex, follow" />}
 
     {alternates.map((alt) => <link rel="alternate" hreflang={alt.lang} href={alt.href} />)}
@@ -96,7 +99,7 @@ const alternates = activeLocales.map((code) => ({
         no reflow. Only the faces used above the fold. */}
     <link
       rel="preload"
-      href="/fonts/literata-cyrillic-400-normal.woff2"
+      href="/fonts/source-serif-4-cyrillic-400-normal.woff2"
       as="font"
       type="font/woff2"
       crossorigin
@@ -133,22 +136,11 @@ const alternates = activeLocales.map((code) => ({
     <header class="site-header">
       <div class:list={['wrap', wide && 'wrap--wide', 'site-header__bar']}>
         <a class="site-header__name" href={home}>{siteName}</a>
-      </div>
 
-      {/* Homepage only, under the wordmark. */}
-      {
-        showTagline && (
-          <div class:list={['wrap', wide && 'wrap--wide']}>
-            <p class="site-header__tagline">{tagline}</p>
-          </div>
-        )
-      }
-
-      {/* Section nav, read from src/data/sections.ts. Published sections only:
-          an unpublished one has no page, so it is never a link. Wraps rather
-          than scrolls on a 360px screen, so no hamburger. */}
-      <nav class="cat-nav" aria-label={t('nav.sections')}>
-        <div class:list={['wrap', wide && 'wrap--wide']}>
+        {/* Section nav, read from src/data/sections.ts. Published sections
+            only: an unpublished one has no page, so it is never a link.
+            Wraps rather than scrolls on a 360px screen, so no hamburger. */}
+        <nav class="cat-nav" aria-label={t('nav.sections')}>
           <ul>
             {
               publishedSections().map((section) => {
@@ -167,8 +159,16 @@ const alternates = activeLocales.map((code) => ({
               })
             }
           </ul>
-        </div>
-      </nav>
+        </nav>
+
+        {
+          ctaHref && (
+            <a class="btn btn--cta" href={ctaHref}>
+              {t('nav.cta')}
+            </a>
+          )
+        }
+      </div>
     </header>
 
     <main class="site-main" id="content">

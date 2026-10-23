@@ -1,7 +1,20 @@
 ---
+// The full "next lesson" card, placed at the very bottom of every article
+// in the nine-step sequence (ArticleLayout), for a reader who read through.
+// NextStepPill.astro is the compact sibling next to the H1, for a reader
+// who wants to skip ahead immediately - deliberately a different shape so
+// the two don't read as duplicates.
+// Driven entirely by sequence.ts - a reorder or a new step needs no change
+// here or in any article.
+//
+// Deliberate exception to the site's "article pages stay flat/square, no
+// shadow" rule (see CLAUDE.md "Design tokens" and global.css's file-top
+// note) - a "next lesson" card earns the same --radius/--shadow treatment
+// as .card, because it is itself an action to take, not running prose.
 import { defaultLocale, localePath, type Locale } from '../i18n/config';
 import { useTranslations } from '../i18n/ui';
-import { nextPublishedAfter, stepNumber } from '../data/sequence';
+import { nextPublishedAfter } from '../data/sequence';
+import { sectionById } from '../data/sections';
 
 interface Props {
   /** The current article's position in the sequence. */
@@ -13,58 +26,94 @@ const { step, locale = defaultLocale } = Astro.props;
 const t = useTranslations(locale);
 
 // The next PUBLISHED step, which may be several steps ahead - or none at all,
-// in which case this component renders nothing rather than a dead link.
+// in which case this renders the end-of-sequence card instead of a dead link.
 const next = nextPublishedAfter(step);
+const pocetokSlug = sectionById('pocetok').slug;
+
+const eyebrow = next ? t('article.next') : t('article.sequenceDone');
+const title = next ? next.title : t('article.backToSequence');
+const href = next ? localePath(locale, next.slug) : localePath(locale, pocetokSlug);
 ---
 
-{
-  next && (
-    <nav class="next" aria-label={t('article.next')}>
-      <a class="next__link" href={localePath(locale, next.slug)}>
-        <span class="next__label">
-          {t('article.next')} <span aria-hidden="true">&rarr;</span>
-        </span>
-        <span class="next__title">
-          {stepNumber(next)}. {next.title}
-        </span>
-      </a>
-    </nav>
-  )
-}
+<nav class="next" aria-label={t('article.next')}>
+  <a class="next-card" href={href}>
+    <span class="next-card__body">
+      <span class="next-card__eyebrow">{eyebrow}</span>
+      <span class="next-card__title">{title}</span>
+    </span>
+    <span class="next-card__arrow" aria-hidden="true">&rarr;</span>
+  </a>
+</nav>
 
 <style>
   .next {
-    margin-block-start: var(--space-4);
+    margin-block: var(--space-4);
   }
 
-  .next__link {
-    display: block;
-    font-family: var(--font-ui);
+  .next-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    width: 100%;
     text-decoration: none;
-    background: var(--green-pale);
+    background: var(--paper);
+    border: 1px solid var(--green-pale);
     border-inline-start: var(--border-accent) solid var(--green);
-    /* Single-sided border: corners are never rounded. */
-    border-radius: 0;
-    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: var(--space-3) var(--space-4);
+    transition:
+      box-shadow 0.15s ease,
+      transform 0.15s ease,
+      border-color 0.15s ease;
   }
 
-  .next__label {
-    display: block;
-    font-size: 0.875rem;
+  .next-card:hover {
+    border-color: var(--green);
+    box-shadow: var(--shadow-hover);
+    transform: translateY(-1px);
+  }
+
+  .next-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    min-width: 0;
+  }
+
+  .next-card__eyebrow {
+    font-family: var(--font-ui);
+    font-size: 0.75rem;
     font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
     color: var(--green);
   }
 
-  .next__title {
-    display: block;
-    font-size: 1rem;
+  .next-card__title {
+    font-family: var(--font-ui);
+    font-size: 1.25rem;
+    font-weight: 700;
     color: var(--ink);
-    text-decoration: underline;
-    text-decoration-thickness: 1px;
-    text-underline-offset: 0.18em;
+    line-height: 1.3;
   }
 
-  .next__link:hover .next__title {
-    text-decoration-thickness: 2px;
+  .next-card__arrow {
+    flex: 0 0 auto;
+    font-size: 1.5rem;
+    line-height: 1;
+    color: var(--green);
+    transition: transform 0.15s ease;
+  }
+
+  .next-card:hover .next-card__arrow {
+    transform: translateX(4px);
+  }
+
+  @media (max-width: 480px) {
+    .next-card__title {
+      font-size: 1.1rem;
+    }
   }
 </style>

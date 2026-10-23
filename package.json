@@ -12,12 +12,12 @@
     "fonts": "node scripts/sync-fonts.mjs"
   },
   "dependencies": {
-    "@astrojs/mdx": "^4.2.4",
-    "@astrojs/sitemap": "^3.3.0",
-    "astro": "^5.6.1"
+    "@astrojs/mdx": "^8.1.0",
+    "@astrojs/sitemap": "^3.7.4",
+    "@fontsource/source-serif-4": "^5.3.1",
+    "astro": "^7.4.0"
   },
   "devDependencies": {
-    "@fontsource/ibm-plex-sans": "^5.2.5",
-    "@fontsource/literata": "^5.2.5"
+    "@fontsource/ibm-plex-sans": "^5.2.5"
   }
 }

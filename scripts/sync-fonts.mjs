@@ -1,7 +1,7 @@
 // Copies the Cyrillic woff2 subsets out of @fontsource into public/fonts/
 // under stable, unhashed names.
 //
-// Why not just `import '@fontsource/literata/cyrillic-400.css'`? Because those
+// Why not just `import '@fontsource/source-serif-4/cyrillic-400.css'`? Because those
 // @font-face rules point at content-hashed bundle URLs, which you cannot write
 // a <link rel="preload"> for. Fonts have to be preloaded to avoid a late swap,
 // so the @font-face rules live in src/styles/global.css and reference these
@@ -19,9 +19,12 @@ const outDir = path.join(root, 'public', 'fonts');
 
 // [fontsource package id, subset, weight, style]
 const wanted = [
-  ['literata', 'cyrillic', 400, 'normal'],
-  ['literata', 'cyrillic', 400, 'italic'],
-  ['literata', 'cyrillic', 700, 'normal'],
+  ['source-serif-4', 'cyrillic', 400, 'normal'],
+  ['source-serif-4', 'cyrillic', 400, 'italic'],
+  ['source-serif-4', 'cyrillic', 700, 'normal'],
+  ['source-serif-4', 'latin', 400, 'normal'],
+  ['source-serif-4', 'latin', 400, 'italic'],
+  ['source-serif-4', 'latin', 700, 'normal'],
   ['ibm-plex-sans', 'cyrillic', 400, 'normal'],
   ['ibm-plex-sans', 'cyrillic', 600, 'normal'],
 ];

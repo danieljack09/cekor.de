@@ -12,7 +12,7 @@ import { categories } from './data/sequence';
 // body, not the frontmatter) is in src/lib/validate-articles.ts.
 const articles = defineCollection({
   loader: glob({ pattern: '**/[^_]*.{md,mdx}', base: './src/content/articles' }),
-  schema: z.object({
+  schema: ({ image }) => z.object({
     title: z.string().min(1),
 
     /** <meta description>. 155 is where Google starts truncating. */
@@ -73,6 +73,20 @@ const articles = defineCollection({
      * then visibly say "Werbelink".
      */
     affiliate: z.boolean().default(false),
+
+    /**
+     * Optional card image, shown on article cards and the landing-page
+     * slider - never in the article body. Lives in
+     * src/assets/articles/<slug>.jpg so Astro compresses it at build time;
+     * a file in public/ would ship uncompressed.
+     */
+    image: image().optional(),
+
+    /** What the image shows, in Macedonian. Required with `image`. */
+    imageAlt: z.string().min(1).optional(),
+  }).refine((data) => !data.image || data.imageAlt, {
+    message: 'an article with an image needs imageAlt',
+    path: ['imageAlt'],
   }),
 });
 

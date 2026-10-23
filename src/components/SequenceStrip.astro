@@ -1,7 +1,7 @@
 ---
-import { defaultLocale, type Locale } from '../i18n/config';
+import { defaultLocale, localePath, type Locale } from '../i18n/config';
 import { useTranslations } from '../i18n/ui';
-import { totalSteps } from '../data/sequence';
+import { sequence, totalSteps } from '../data/sequence';
 
 interface Props {
   /** Position in the sequence. Validated 1-9 by the content schema. */
@@ -20,16 +20,40 @@ const segments = Array.from({ length: total }, (_, i) => i + 1);
 <div class="seq" role="group" aria-label={t('article.progress')}>
   <p class="seq__label">{t('article.step', { n: current, total })}</p>
 
-  {/* Brand element, not decoration: this strip is how a reader sees where they
-      are in the nine steps. aria-hidden only because the label above already
-      states the position in words - announcing nine bars would be noise. */}
-  <div class="seq__bars" aria-hidden="true">
+  {/* The coloured bars are decoration - the label above already states the
+      position in words. The numbers are not: a step behind the reader with
+      a published article is a real link back to it. */}
+  <div class="seq__bars">
     {
-      segments.map((n) => (
-        <span
-          class:list={['seq__bar', n < current && 'is-done', n === current && 'is-current']}
-        />
-      ))
+      segments.map((n) => {
+        const target = sequence[n - 1];
+        const isDone = n < current;
+        const isCurrent = n === current;
+        const clickable = isDone && target.published;
+        return (
+          <span class="seq__segment">
+            <span class="seq__track" aria-hidden="true">
+              <span class:list={['seq__bar', isDone && 'is-done', isCurrent && 'is-current']} />
+            </span>
+            {clickable ? (
+              <a
+                class:list={['seq__num', 'is-done']}
+                href={localePath(locale, target.slug)}
+                aria-label={`${n}. ${target.title}`}
+              >
+                {n}
+              </a>
+            ) : (
+              <span
+                class:list={['seq__num', isDone && 'is-done', isCurrent && 'is-current']}
+                aria-hidden="true"
+              >
+                {n}
+              </span>
+            )}
+          </span>
+        );
+      })
     }
   </div>
 </div>
@@ -50,14 +74,30 @@ const segments = Array.from({ length: total }, (_, i) => i + 1);
 
   .seq__bars {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 3px;
-    /* Fixed height: the taller current segment cannot shift anything. */
+  }
+
+  .seq__segment {
+    flex: 1 1 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  /* Fixed-height track: the taller current bar cannot shift the numbers
+     below it. */
+  .seq__track {
+    display: flex;
+    align-items: center;
+    width: 100%;
     height: 8px;
   }
 
   .seq__bar {
-    flex: 1 1 0;
+    width: 100%;
     height: 3px;
     background: var(--green-pale);
     border-radius: 0;
@@ -73,5 +113,38 @@ const segments = Array.from({ length: total }, (_, i) => i + 1);
   .seq__bar.is-current {
     height: 8px;
     background: var(--ochre);
+  }
+
+  /* No shape behind the number - colour and weight alone carry the state.
+     Still nine to a row on a 360px screen; each is only a couple of
+     characters wide. */
+  .seq__num {
+    display: inline-block;
+    font-family: var(--font-ui);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1;
+    color: var(--ink-quiet);
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+
+  /* Steps already behind the reader - whether linkable or not. */
+  .seq__num.is-done {
+    color: var(--green);
+  }
+
+  /* Where the reader is now. */
+  .seq__num.is-current {
+    color: var(--ochre);
+    font-weight: 700;
+  }
+
+  /* A step behind the reader with a published article: a real link. */
+  a.seq__num:hover {
+    color: var(--ochre);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.15em;
   }
 </style>

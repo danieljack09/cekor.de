@@ -1,0 +1,137 @@
+---
+/**
+ * A small horizontal bar chart comparing a before and an after value.
+ * Inline SVG, no script, no image request.
+ *
+ * Every bar starts at zero, so a small change looks small. Widths are
+ * percentages and the text is in px, so the chart fills any column width
+ * without the labels shrinking on a phone.
+ *
+ * Only numbers that the article already states and sources go in here.
+ * The chart repeats the text, it never adds a fact.
+ */
+interface Bar {
+  /** Row label above the bar, e.g. "2026". */
+  label: string;
+  value: number;
+  /** The value as the reader should see it, e.g. "13,90 €". */
+  display: string;
+  /** The new value. Drawn in --green, the others in --ink-quiet. */
+  current?: boolean;
+}
+
+interface Props {
+  /** Visible caption, also the SVG's accessible name. */
+  title: string;
+  /** Full sentence for screen readers: every value in words. */
+  desc: string;
+  bars: Bar[];
+  /** Optional line under the chart, e.g. the yearly limit. */
+  note?: string;
+}
+
+const { title, desc, bars, note } = Astro.props;
+
+const max = Math.max(...bars.map((b) => b.value));
+const labelHeight = 22;
+const barHeight = 32;
+const rowGap = 12;
+const rowHeight = labelHeight + barHeight + rowGap;
+const height = bars.length * rowHeight - rowGap;
+
+// Unique per page, so aria-labelledby never points at another chart's title.
+const id = `chart-${Math.random().toString(36).slice(2, 9)}`;
+---
+
+<figure class="bar-compare">
+  <figcaption class="bar-compare__caption">
+    {title}
+    {note && <span class="bar-compare__note">{note}</span>}
+  </figcaption>
+  <svg
+    width="100%"
+    height={height}
+    role="img"
+    aria-labelledby={`${id}-title ${id}-desc`}
+  >
+    <title id={`${id}-title`}>{title}</title>
+    <desc id={`${id}-desc`}>{desc}</desc>
+    {
+      bars.map((bar, i) => {
+        const y = i * rowHeight;
+        const pct = `${(bar.value / max) * 100}%`;
+        return (
+          <g>
+            <text class="bar-compare__label" x="0" y={y + 15}>
+              {bar.label}
+            </text>
+            <rect
+              class:list={['bar-compare__bar', { 'bar-compare__bar--current': bar.current }]}
+              x="0"
+              y={y + labelHeight}
+              width={pct}
+              height={barHeight}
+            />
+            <text
+              class="bar-compare__value"
+              x={pct}
+              dx="-10"
+              y={y + labelHeight + barHeight / 2}
+              dominant-baseline="central"
+              text-anchor="end"
+            >
+              {bar.display}
+            </text>
+          </g>
+        );
+      })
+    }
+  </svg>
+</figure>
+
+<style>
+  .bar-compare {
+    margin: var(--space-3) 0 var(--space-4);
+  }
+
+  .bar-compare svg {
+    display: block;
+    overflow: visible;
+  }
+
+  .bar-compare__label {
+    font-family: var(--font-ui);
+    font-size: 15px;
+    fill: var(--ink);
+  }
+
+  /* Flat and square like every other article component. */
+  .bar-compare__bar {
+    fill: var(--ink-quiet);
+  }
+
+  .bar-compare__bar--current {
+    fill: var(--green);
+  }
+
+  .bar-compare__value {
+    font-family: var(--font-ui);
+    font-size: 16px;
+    font-weight: 600;
+    fill: var(--paper);
+  }
+
+  .bar-compare__caption {
+    font-family: var(--font-ui);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin-block-end: var(--space-2);
+  }
+
+  .bar-compare__note {
+    display: block;
+    font-weight: 400;
+    color: var(--ink-quiet);
+  }
+</style>

@@ -4,6 +4,7 @@ import SequenceStrip from '../components/SequenceStrip.astro';
 import SummaryBox from '../components/SummaryBox.astro';
 import SourceLine from '../components/SourceLine.astro';
 import NextStep from '../components/NextStep.astro';
+import NextStepPill from '../components/NextStepPill.astro';
 import { defaultLocale, intlLocale, type Locale } from '../i18n/config';
 import { sectionOfArticle } from '../data/sections';
 import type { CollectionEntry } from 'astro:content';
@@ -38,7 +39,14 @@ const newsDate =
 
     {newsDate && <p class="article__date"><time datetime={date!.toISOString().slice(0, 10)}>{newsDate}</time></p>}
 
-    <h1>{title}</h1>
+    {/* The compact pill sits beside the title for a reader who wants to
+        skip ahead immediately; it wraps onto its own line below the title
+        when there isn't room. The full card repeats at the very bottom for
+        one who reads through - see NextStep.astro. */}
+    <div class="article__heading">
+      <h1>{title}</h1>
+      {sequenceStep !== null && <NextStepPill step={sequenceStep} locale={locale} />}
+    </div>
 
     <SummaryBox summary={summary} locale={locale} />
 
@@ -58,5 +66,26 @@ const newsDate =
     font-size: 0.875rem;
     color: var(--ink-quiet);
     margin-block-end: var(--space-1);
+  }
+
+  /* Title + pill in one row; wraps the pill onto its own line below the
+     title when there isn't room beside it - no media query needed.
+     The H1 needs a zero flex-basis (not "auto"): with "auto" the wrap
+     algorithm sizes it by its max-content width - the full title on one
+     line - and decides the pill can't fit beside it before the title ever
+     gets a chance to shrink, pushing the pill down even on a wide screen. */
+  .article__heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-3);
+    margin-block-end: var(--space-3);
+  }
+
+  .article__heading h1 {
+    margin-block-end: 0;
+    flex: 1 1 0%;
+    min-width: 0;
   }
 </style>

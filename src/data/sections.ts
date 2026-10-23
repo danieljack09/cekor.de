@@ -37,13 +37,14 @@ export const sections: Section[] = [
     published: true,
   },
   {
-    // Discounted products. Not designed yet: the name and slug are
-    // placeholders. Must use the Werbelink component, which does not exist yet.
+    // Discounted products. Live as a page, empty for now: no affiliate
+    // content yet, so no Werbelink component needed until the first link
+    // goes in.
     id: 'popusti',
     slug: 'popusti',
     label: 'Попусти',
-    intro: '',
-    published: false,
+    intro: 'Попусти и понуди корисни за живот во Германија.',
+    published: true,
   },
 ];
 

@@ -32,13 +32,15 @@ const modifier = variant === 'внимание' ? 'warning' : 'important';
 </aside>
 
 <style>
+  /* Both variants are a solid fill in their own accent colour, not just a
+     border - важно's teal and внимание's alarm red each earn the same
+     weight on the page, with --paper text for contrast against either. */
   .callout {
     --callout-accent: var(--ochre);
 
-    background: transparent;
+    background: var(--callout-accent);
     border-inline-start: var(--border-accent) solid var(--callout-accent);
-    /* Single-sided border: corners are never rounded. */
-    border-radius: 0;
+    border-radius: var(--radius-callout);
     padding: var(--space-2) var(--space-3);
     margin-block: var(--space-3) var(--space-4);
   }
@@ -48,16 +50,25 @@ const modifier = variant === 'внимание' ? 'warning' : 'important';
     --callout-accent: var(--ochre);
   }
 
-  /* variant="внимание" */
+  /* variant="внимание" - warnings and deadlines are the one place --alarm
+     is spent, so it earns the loudest treatment on the page. */
   .callout--warning {
     --callout-accent: var(--alarm);
+  }
+
+  .callout__title,
+  .callout__body {
+    color: var(--paper);
+  }
+
+  .callout__body :global(a) {
+    color: var(--paper);
   }
 
   .callout__title {
     font-family: var(--font-ui);
     font-size: 0.9375rem;
     font-weight: 600;
-    color: var(--callout-accent);
     margin-block-end: var(--space-1);
   }
 

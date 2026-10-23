@@ -1,0 +1,88 @@
+---
+// The compact top placement, inline with the H1 (see ArticleLayout's
+// .article__heading). Sits next to NextStep.astro, the full "next lesson"
+// card used at the bottom of the same article - deliberately a different
+// shape so the two don't read as duplicates.
+//
+// Driven entirely by sequence.ts - a reorder or a new step needs no change
+// here or in any article.
+import { defaultLocale, localePath, type Locale } from '../i18n/config';
+import { useTranslations } from '../i18n/ui';
+import { nextPublishedAfter } from '../data/sequence';
+import { sectionById } from '../data/sections';
+
+interface Props {
+  /** The current article's position in the sequence. */
+  step: number;
+  locale?: Locale;
+}
+
+const { step, locale = defaultLocale } = Astro.props;
+const t = useTranslations(locale);
+
+const next = nextPublishedAfter(step);
+const pocetokSlug = sectionById('pocetok').slug;
+const href = next ? localePath(locale, next.slug) : localePath(locale, pocetokSlug);
+const eyebrow = next ? t('article.next') : t('article.done');
+const title = next ? next.title : t('article.backToSequence');
+---
+
+<a class="next-pill" href={href} aria-label={`${eyebrow}: ${title}`}>
+  <span class="next-pill__eyebrow">{eyebrow}</span>
+  <span class="next-pill__title">
+    {title} <span class="next-pill__arrow" aria-hidden="true">&rarr;</span>
+  </span>
+</a>
+
+<style>
+  .next-pill {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 0 0 auto;
+    /* Narrow and compact - the text wraps onto two lines instead of
+       stretching the button wide for one. */
+    max-width: 12rem;
+    text-align: center;
+    font-family: var(--font-ui);
+    line-height: 1.25;
+    text-decoration: none;
+    color: var(--green);
+    background: var(--green-pale);
+    /* A true pill, deliberately not --radius (4px): a compact nav chip
+       next to the title, distinct from the card shapes elsewhere. */
+    border-radius: 999px;
+    padding: var(--space-2) var(--space-3);
+    transition:
+      background-color 0.15s ease,
+      color 0.15s ease,
+      box-shadow 0.15s ease;
+  }
+
+  .next-pill:hover {
+    background: var(--green);
+    color: var(--paper);
+    box-shadow: var(--shadow-hover);
+  }
+
+  .next-pill__eyebrow {
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+    opacity: 0.8;
+  }
+
+  .next-pill__title {
+    font-size: 0.9375rem;
+    font-weight: 700;
+  }
+
+  .next-pill__arrow {
+    display: inline-block;
+    transition: transform 0.15s ease;
+  }
+
+  .next-pill:hover .next-pill__arrow {
+    transform: translateX(3px);
+  }
+</style>

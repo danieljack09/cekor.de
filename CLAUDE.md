@@ -14,6 +14,12 @@ and may not be a confident reader.
   **live text**. No logo image files. The only image is `public/favicon.svg`:
   a single Ч in `--paper` on a `--green` square, drawn as a path because
   favicons render with no access to the self-hosted font.
+- **Exception: small inline SVG data charts in articles** (`BarCompare.astro`).
+  They are markup, not files: no extra request, a few hundred bytes, text in
+  the self-hosted font. They may only repeat numbers the article already
+  states and sources, never add one, and every bar starts at zero. Still no
+  photos, illustrations or raster images anywhere: the reader is on a cheap
+  phone on a slow connection.
 - Tagline: **Германија, чекор по чекор**. Under the wordmark on the homepage
   and in the homepage `<meta description>` — **not on every page**.
 - `<title>` pattern `{Article title} — Чекор`, homepage
@@ -58,7 +64,7 @@ sections, the same way `sequence.ts` is for steps:
 |---|---|---|
 | Почеток во Германија | `/mk/pocetok-vo-germanija/` | the nine steps in order + "Други водичи" (guides with `sequenceStep: null`) |
 | Новости | `/mk/novosti/`, articles at `/mk/novosti/<slug>/` | news, newest first; "Наскоро." while empty |
-| Попусти (placeholder) | — | `published: false`. Name, slug and design not decided |
+| Попусти | `/mk/popusti/` | discounted products, affiliate; "Наскоро." while empty |
 
 The landing page `/mk/` has one block per **published** section: label (h2
 link), intro line, a preview of three items and a "Сите … →" link.
@@ -214,7 +220,7 @@ src/
   i18n/ui.ts                 all UI strings, per locale
   layouts/BaseLayout.astro   header, footer, preloads, SEO, analytics stub
   layouts/ArticleLayout.astro
-  components/                Callout, SequenceStrip, SummaryBox, SourceLine, NextStep
+  components/                Callout, BarCompare, HeroSlider, SequenceStrip, SummaryBox, SourceLine, NextStep
   pages/[lang]/              every real URL carries a locale prefix
   pages/[lang]/index.astro   landing page, previews per section
   pages/[lang]/pocetok-vo-germanija.astro
@@ -236,30 +242,88 @@ public/_headers              immutable caching for /fonts/ and /_astro/
 Defined in `src/styles/global.css`. Light mode only. **Do not introduce a new
 colour.**
 
+Blue/teal/red palette — the convention informational and government sites
+converge on (GOV.UK: primary blue `#1D70B8`, teal `#158187`, red `#D4351C`
+on a light neutral backdrop; US CMS.gov: cool blues/grays as a trust-
+building, accessible neutral). `--green` / `--green-pale` keep their names
+for stability even though the values are blue now, not green — every
+component already keys off these names, so renaming them would be pure
+churn for a values-only change.
+
 | Token | | Use |
 |---|---|---|
-| `--ink` | `#16211C` | body text |
-| `--green` | `#1E4D3B` | header, structure, primary accent |
-| `--green-pale` | `#DDE7E0` | callout fills, dividers |
-| `--paper` | `#F4F6F3` | page background |
-| `--ochre` | `#A8701A` | "важно" callouts, current sequence step |
-| `--alarm` | `#8E2B20` | **warnings and deadlines only** |
+| `--ink` | `#1A2733` | body text |
+| `--green` | `#1D70B8` | header, structure, primary accent |
+| `--green-pale` | `#DCE9F2` | callout fills, dividers |
+| `--paper` | `#F7F9FB` | page background |
+| `--ochre` | `#158187` | "важно" callouts, current sequence step |
+| `--alarm` | `#D4351C` | **warnings and deadlines only** |
 
 Spending `--alarm` on anything else spends the colour's credibility.
 
-**No rounded corners anywhere.** `global.css` sets `border-radius: 0` on `*`,
-so an element with a single-sided border accent cannot round its corners by
-accident. Left-border accents are 3px (`--border-accent`).
+**Shadow is scoped, radius mostly is not.** `--shadow` / `--shadow-hover` /
+`--shadow-rail` exist for index-page cards (`.card`), the hero-scale sequence
+rail (`.rail__bar`) and `NextStep` (below) only — a deliberate, subtle lift,
+not rakurs.mk's pill buttons or deep drop shadows. `--radius` (4px) is for
+`.card` and button-like elements. The left-accent boxes on article pages —
+`Callout` and `SummaryBox` — are softly rounded too, but with their own
+larger `--radius-callout` (10px), not `--radius`: big enough to read as a
+deliberately shaped block, not a sharp inline aside, but distinct from the
+card radius so the two don't look like the same component at different
+sizes. `SequenceStrip`, focus outlines, hairline rules and the skip-link are
+the components that stay flat and square — none of them are a filled block,
+so rounding would have nothing to apply to. Two further exceptions, both
+navigation rather than prose: `NextStep` is a "next lesson" card — borrows
+`.card`'s `--radius`/`--shadow`, with a hover lift and an arrow that nudges
+right. `NextStepPill`, next to the H1, is a compact pill — fully rounded
+(`border-radius: 999px`, deliberately not `--radius`), filling solid on
+hover rather than lifting, since it is a chip beside the title, not a card
+in the flow. Left-border accents are 3px (`--border-accent`).
 
-Single centered column, max 62 characters, mobile first. No sidebar, no cards,
-no grid. Body Literata 17px/18px at line-height 1.75; headings, nav and tables
-IBM Plex Sans.
+Single centered column, max 62 characters, mobile first, on article pages.
+Index pages (landing, Почеток, Новости, Попусти) use the wider `.wrap--wide`
+column with a card grid (`.card-grid` / `.card`) — see "The card grid" above.
+Body Source Serif 4 17px/18px at line-height 1.75; headings, nav and tables IBM
+Plex Sans.
 
-**No animation at all.** The `prefers-reduced-motion` block stays as a guard
-against a future addition, but there is currently nothing to disable.
+**`.btn` / `.btn--primary`** is the one filled-button pattern on the site (the
+"Чекор по чекор во Германија" CTA on Почеток). Solid `--green` fill, `--paper`
+text, uses `--radius`/`--shadow`. Reuse it for any future call-to-action
+rather than inventing a second button style.
+
+**Animation is scoped, not banned outright.** The featured-news slider
+(`HeroSlider.astro`, top of the landing page and of Новости — one shared
+component, hidden radios + CSS `:checked`, zero JS, max 5 slides) cross-fades
+between slides on click. It also **auto-rotates every 10 seconds** — the one
+other thing besides the landing stats that moves on its own, confirmed
+directly. Pure CSS: an extra checked "auto" radio drives keyframes; the
+first click on an arrow or dot stops it for good; it pauses on hover and
+focus, and does not rotate at all under `prefers-reduced-motion`.
+On Новости it holds only real articles; below it
+"Сите новости" lists every news article as cards, two per row.
+The landing page's nine-step master-detail stepper (`.stepper` — hidden
+radio inputs + CSS `:checked`, zero JS, same family of no-JS technique as
+the nav menu's `<details>`) cross-fades between step panels (200ms
+opacity/transform, structural `:nth-of-type` rules only, no content
+coupling).
+
+The landing page's 4 stats (`.hero__stats .stat`) are the one place that
+animates **on page load**, not just on hover/click — a deliberate,
+explicit exception to "animation only follows user interaction",
+confirmed directly: each column fades/slides in staggered (0.1s/0.2s/
+0.3s/0.4s delay, set per-item via inline `animation-delay`), `.stat__value`
+pulses once after settling, and hovering a column lifts it 4px and shifts
+its number to `--ochre`. Apart from the slider rotation, nowhere else auto-plays.
+
+The `prefers-reduced-motion` block neutralises every transition/animation
+above for anyone with that OS setting on.
 
 ## Not built yet
 
+- Real content on the landing page and on Попусти: both currently show
+  placeholder cards (`.card--placeholder`, plain non-linking blocks, not
+  `<a>` — nothing to send a reader to yet) rather than real featured
+  content or real discounts.
 - FAQ / HowTo schema markup on articles.
 - Affiliate link component with the visible "Werbelink" marker. Worth building
   *before* the first affiliate link goes in, not after.
@@ -269,8 +333,9 @@ against a future addition, but there is currently nothing to disable.
 - Impressum and Datenschutz are `TODO` stubs. **Both must be generated from
   eRecht24 before launch** (links are in the page comments). Affiliate links
   make the site commercial, so § 5 DDG applies in full.
-- The Попусти section (discounted products, affiliate). Placeholder in
-  `sections.ts` with `published: false`. Needs the Werbelink component first.
+- The Попусти section (discounted products, affiliate) is published and live
+  at `/mk/popusti/`, showing "Наскоро." Needs the Werbelink component before
+  the first real affiliate link goes in.
 - No news articles yet: `/mk/novosti/` shows "Наскоро."
 - Open: may news cite news outlets, or only official sources? Until decided,
   the content rules above apply unchanged.

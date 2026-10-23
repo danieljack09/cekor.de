@@ -1,41 +1,76 @@
 /* ==========================================================================
    cekor.de - global stylesheet
-   Single centered column. Mobile first. No framework, no radius, no shadows.
+   Single centered column. Mobile first. No framework.
+   Shadow is used sparingly, on index-page cards, the sequence rail and
+   NextStep's "next lesson" card only - see --shadow below. Radius is more
+   common: --radius (4px) for cards/buttons, --radius-callout (10px, softer)
+   for the left-accent boxes (Callout, SummaryBox). SequenceStrip, focus
+   rings, hairline rules and the skip-link stay flat and square.
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
    Fonts
-   Self-hosted Cyrillic subsets, copied out of @fontsource by
+   Self-hosted subsets (Cyrillic, plus Latin for the body font), copied out of @fontsource by
    scripts/sync-fonts.mjs. Never the Google Fonts CDN.
    The unicode-range keeps these files from being fetched for Latin-only text
    (slugs, German source names) unless Cyrillic is actually on the page.
    -------------------------------------------------------------------------- */
 
 @font-face {
-  font-family: 'Literata';
+  font-family: 'Source Serif 4';
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url('/fonts/literata-cyrillic-400-normal.woff2') format('woff2');
+  src: url('/fonts/source-serif-4-cyrillic-400-normal.woff2') format('woff2');
   unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
 }
 
 @font-face {
-  font-family: 'Literata';
+  font-family: 'Source Serif 4';
   font-style: italic;
   font-weight: 400;
   font-display: swap;
-  src: url('/fonts/literata-cyrillic-400-italic.woff2') format('woff2');
+  src: url('/fonts/source-serif-4-cyrillic-400-italic.woff2') format('woff2');
   unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
 }
 
 @font-face {
-  font-family: 'Literata';
+  font-family: 'Source Serif 4';
   font-style: normal;
   font-weight: 700;
   font-display: swap;
-  src: url('/fonts/literata-cyrillic-700-normal.woff2') format('woff2');
+  src: url('/fonts/source-serif-4-cyrillic-700-normal.woff2') format('woff2');
   unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+
+/* Latin subset of the body font, for the German terms in running text
+   (Anmeldung, Bürgeramt) - otherwise they fall back to Georgia mid-sentence.
+   Fetched only when a page actually has Latin text, which nearly all do. */
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/source-serif-4-latin-400-normal.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/source-serif-4-latin-400-italic.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/source-serif-4-latin-700-normal.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
 @font-face {
@@ -61,18 +96,25 @@
    -------------------------------------------------------------------------- */
 
 :root {
-  --ink: #16211c;
-  --green: #1e4d3b;
-  --green-pale: #dde7e0;
-  --paper: #f4f6f3;
-  --ochre: #a8701a;
-  --alarm: #8e2b20;
+  /* Blue/teal/red palette - the convention informational and government
+     sites converge on (GOV.UK: primary blue #1D70B8, teal #158187, red
+     #D4351C on a light neutral backdrop; US CMS.gov: cool blues/grays as a
+     trust-building, accessible neutral). --green / --green-pale keep their
+     names for stability even though the values are blue now, not green -
+     every component already keys off these names, so renaming them would
+     be churn for a values-only change. */
+  --ink: #1a2733;
+  --green: #1d70b8;
+  --green-pale: #dce9f2;
+  --paper: #f7f9fb;
+  --ochre: #158187;
+  --alarm: #d4351c;
 
   /* Derived, never a new hue. */
-  --ink-quiet: #55605a;
+  --ink-quiet: #51606d;
   --rule: var(--green-pale);
 
-  --font-body: 'Literata', Georgia, 'Times New Roman', serif;
+  --font-body: 'Source Serif 4', Georgia, 'Times New Roman', serif;
   --font-ui: 'IBM Plex Sans', 'Segoe UI', system-ui, -apple-system, sans-serif;
 
   /* Content column. A fixed length, never a ch value: ch is font-relative, so
@@ -95,6 +137,20 @@
   --space-6: calc(var(--step) * 21); /* 84px - between page sections only */
 
   --border-accent: 3px;
+
+  /* Subtle, deliberate - not rakurs.mk's pill buttons / 52px cards. Applied
+     only to .card and button-like elements; never to focus rings, the
+     sequence rail bars, or hairline rules. */
+  --radius: 4px;
+  /* Softer, more visible rounding than --radius - the left-accent boxes
+     (Callout, SummaryBox) read as individually shaped blocks, not sharp
+     inline asides. Never applied to SequenceStrip, focus rings, hairline
+     rules or the skip-link - those stay square. */
+  --radius-callout: 10px;
+  /* One soft elevation, derived from --ink at low opacity - not a new hue. */
+  --shadow: 0 2px 8px rgba(22, 33, 28, 0.08);
+  --shadow-hover: 0 4px 14px rgba(22, 33, 28, 0.14);
+  --shadow-rail: 0 1px 4px rgba(22, 33, 28, 0.1);
 }
 
 /* --------------------------------------------------------------------------
@@ -109,13 +165,6 @@
 
 * {
   margin: 0;
-}
-
-/* House rule: nothing on this site has rounded corners, and an element with a
-   single-sided border accent must never round them. Declared once here so no
-   component has to remember. */
-* {
-  border-radius: 0;
 }
 
 html {
@@ -322,7 +371,7 @@ a:hover {
   /* Clipped to nothing rather than translated off-screen: a transformed box
      sitting one pixel above the viewport is a thin strip waiting to happen. */
   clip-path: inset(50%);
-  z-index: 10;
+  z-index: 30;
   background: var(--paper);
   color: var(--green);
   font-family: var(--font-ui);
@@ -340,16 +389,32 @@ a:hover {
    -------------------------------------------------------------------------- */
 
 .site-header {
-  background: var(--green);
+  /* Slightly transparent + blurred rather than a flat solid fill, so
+     content scrolling underneath a sticky header still shows through. */
+  background: color-mix(in srgb, var(--green) 94%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   color: var(--paper);
+  /* A thin brand flourish at the very foot of the header, echoing the
+     sequence-rail motif in miniature - plus a soft shadow, so the edge into
+     the page reads as depth rather than a hard flat cutoff. */
+  border-block-end: var(--border-accent) solid var(--ochre);
+  box-shadow: var(--shadow);
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 20;
 }
 
+/* Single row: wordmark, nav, CTA - like rakurs.mk's logo/nav/button bar.
+   Wraps onto a second line on a narrow screen rather than scrolling or
+   hiding behind a hamburger. */
 .site-header__bar {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   justify-content: space-between;
   gap: var(--space-2);
-  /* Room around the wordmark. It is the only thing in this row. */
+  row-gap: var(--space-2);
   padding-block: var(--space-3);
   min-height: 3.5rem;
 }
@@ -364,6 +429,8 @@ a:hover {
   line-height: 1.2;
   color: var(--paper);
   text-decoration: none;
+  /* Never wraps mid-word if the row is tight. */
+  flex: 0 0 auto;
 }
 
 .site-header__name:hover {
@@ -372,21 +439,15 @@ a:hover {
   text-underline-offset: 0.2em;
 }
 
-/* Homepage only. Sentence case, no caps. */
-.site-header__tagline {
-  font-family: var(--font-ui);
-  font-size: 14px;
-  line-height: 1.4;
-  color: var(--green-pale);
-  margin-block-end: var(--space-3);
-}
-
 /* --------------------------------------------------------------------------
-   Section nav - a row under the wordmark, never a hamburger
+   Section nav - inline with the wordmark and CTA, never a hamburger
    -------------------------------------------------------------------------- */
 
 .cat-nav {
-  padding-block-end: var(--space-2);
+  /* Takes the middle space between the wordmark and the CTA; its own list
+     still wraps independently if the row runs out of room. */
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .cat-nav ul {
@@ -395,8 +456,14 @@ a:hover {
   margin: 0;
   display: flex;
   flex-wrap: wrap;
-  /* 20px. Wraps rather than scrolls if a future label is longer. */
-  gap: 1.25rem;
+  /* Centered in the middle space between the wordmark and the CTA, like
+     rakurs.mk's nav row. */
+  justify-content: center;
+  /* Gap is the actual gutter between pill backgrounds now that the link's
+     own padding is real (not offset by a negative margin) - must stay
+     comfortably bigger than the pill's rounding, or two adjacent
+     hover/active pills touch. */
+  gap: var(--space-3);
 }
 
 .cat-nav li {
@@ -406,21 +473,32 @@ a:hover {
 .cat-nav__link {
   display: inline-block;
   font-family: var(--font-ui);
+  font-weight: 600;
   font-size: 15px;
   line-height: 1.3;
-  color: var(--green-pale);
+  /* --paper at reduced opacity by default: full contrast is reserved for
+     hover/active, so the current section still reads as the emphasised one. */
+  color: rgba(247, 249, 251, 0.82);
   text-decoration: none;
+  border-radius: var(--radius);
   /* Transparent on every link, so marking one active shifts nothing. */
   border-block-end: 2px solid transparent;
   padding-block: var(--space-2) var(--space-1);
+  padding-inline: var(--space-3);
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease,
+    border-color 0.15s ease;
 }
 
 .cat-nav__link:hover {
   color: var(--paper);
+  background: rgba(247, 249, 251, 0.12);
 }
 
 .cat-nav__link.is-active {
   color: var(--paper);
+  background: rgba(247, 249, 251, 0.12);
   border-block-end-color: var(--ochre);
 }
 
@@ -452,6 +530,8 @@ a:hover {
   flex: 1 1 0;
   height: 5px;
   background: var(--green-pale);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-rail);
 }
 
 .rail__bar.is-current {
@@ -473,7 +553,8 @@ a:hover {
   margin: 0;
   display: grid;
   grid-template-columns: 1fr;
-  gap: var(--space-3);
+  row-gap: 0.7rem;
+  column-gap: var(--space-3);
 }
 
 @media (min-width: 760px) {
@@ -499,12 +580,32 @@ a:hover {
   background: var(--paper);
   border: 1px solid var(--green-pale);
   border-inline-start: var(--border-accent) solid var(--green);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
   padding: var(--space-3);
   height: 100%;
 }
 
 .card:hover {
   border-color: var(--green);
+  box-shadow: var(--shadow-hover);
+}
+
+/* Optional card image: bleeds to the card's edges above the text. A fixed
+   16:9 box, so the layout never jumps while a lazy image loads. */
+.card--image {
+  overflow: hidden;
+}
+
+.card__image {
+  display: block;
+  width: calc(100% + 2 * var(--space-3));
+  max-width: none;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  margin: calc(-1 * var(--space-3)) calc(-1 * var(--space-3)) var(--space-2);
+  background: var(--green-pale);
 }
 
 /* The one step a new arrival is about to start - see .rail above. */
@@ -594,6 +695,81 @@ a:hover {
 }
 
 /* --------------------------------------------------------------------------
+   Button - first filled-button use on the site (the Почеток CTA). Solid
+   fill, not a link-style underline: this is an action, not running text.
+   -------------------------------------------------------------------------- */
+
+.btn {
+  display: inline-block;
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 1rem;
+  text-decoration: none;
+  border-radius: var(--radius);
+  padding: var(--space-2) var(--space-4);
+}
+
+.btn--primary {
+  background: var(--green);
+  color: var(--paper);
+  box-shadow: var(--shadow);
+}
+
+.btn--primary:hover {
+  box-shadow: var(--shadow-hover);
+}
+
+/* The header CTA ("Започни тука"). Inverted fill - --paper on the --green
+   bar - so it pops the way rakurs.mk's red button pops against its dark
+   header, without a 7th hue. */
+.btn--cta {
+  background: var(--paper);
+  color: var(--green);
+  font-size: 0.9375rem;
+  padding: var(--space-1) var(--space-3);
+  flex: 0 0 auto;
+  box-shadow: var(--shadow);
+  transition:
+    background-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
+}
+
+.btn--cta:hover {
+  background: var(--green-pale);
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-1px);
+}
+
+/* Visually secondary action next to a .btn--primary - an outline, not a
+   second fill, so it stays subordinate without a new colour. */
+.btn--secondary {
+  background: transparent;
+  color: var(--green);
+  border: var(--border-accent) solid var(--green);
+}
+
+.btn--secondary:hover {
+  background: var(--green-pale);
+}
+
+/* --------------------------------------------------------------------------
+   Placeholder cards - landing page and Попусти, until real content exists.
+   Same look as .card, but a plain block (not a link): a card with nothing
+   behind it yet must not pretend to be clickable. See CLAUDE.md "no dead
+   links anywhere on the site".
+   -------------------------------------------------------------------------- */
+
+.card--placeholder {
+  cursor: default;
+}
+
+.card--placeholder:hover {
+  border-color: var(--green-pale);
+  box-shadow: var(--shadow);
+}
+
+/* --------------------------------------------------------------------------
    Footer
    -------------------------------------------------------------------------- */
 
@@ -653,8 +829,9 @@ a:hover {
 }
 
 /* --------------------------------------------------------------------------
-   Reduced motion - there is nothing to disable today, but this stays so a
-   future addition cannot introduce motion by accident
+   Reduced motion - neutralises every animation/transition on the site for
+   anyone with that OS setting on: the stepper's hover cross-fade, the
+   landing page's stat entrance/pulse, and anything added later.
    -------------------------------------------------------------------------- */
 
 @media (prefers-reduced-motion: reduce) {

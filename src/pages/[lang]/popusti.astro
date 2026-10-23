@@ -1,0 +1,56 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { activeLocales, type Locale } from '../../i18n/config';
+import { useTranslations } from '../../i18n/ui';
+import { sectionById } from '../../data/sections';
+
+export function getStaticPaths() {
+  return activeLocales.map((lang) => ({ params: { lang } }));
+}
+
+const locale = Astro.params.lang as Locale;
+const t = useTranslations(locale);
+const section = sectionById('popusti');
+
+// Placeholder cards until real discount content and the Werbelink component
+// exist (see CLAUDE.md "Not built yet"). Plain blocks, not links.
+const placeholders = Array.from({ length: 6 }, (_, i) => i + 1);
+---
+
+<BaseLayout
+  title={section.label}
+  description={section.intro}
+  locale={locale}
+  activeSection="popusti"
+  wide
+>
+  <div class="wrap wrap--wide">
+    <h1>{section.label}</h1>
+    <p class="intro">{section.intro}</p>
+    <p class="note">{t('popusti.emptyNote')}</p>
+
+    <ul class="card-grid">
+      {
+        placeholders.map((n) => (
+          <li>
+            <div class="card card--placeholder">
+              <span class="card__badge">Попуст {n}</span>
+              <span class="card__title">Пример на попуст {n}</span>
+              <span class="card__desc">
+                Текст-пример за попуст што ќе биде пополнет подоцна.
+              </span>
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</BaseLayout>
+
+<style>
+  .note {
+    font-family: var(--font-ui);
+    color: var(--ink-quiet);
+    margin-block-end: var(--space-4);
+  }
+</style>

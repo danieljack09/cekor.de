@@ -33,32 +33,49 @@ const others = await otherGuides(locale);
 >
   <div class="wrap wrap--wide">
     <h1>{section.label}</h1>
-    <p class="intro">{section.intro}</p>
+    <p class="intro">{t('pocetok.intro')}</p>
 
     <SequenceRail />
 
-    <ul class="card-grid">
-      {
-        published.map((step) => (
-          <li>
-            <ArticleCard
-              href={localePath(locale, step.slug)}
-              title={step.title}
-              description={step.description}
-              badge={`${stepNumber(step)} / ${totalSteps}`}
-              meta={categoryMeta[step.category].label}
-              current={stepNumber(step) === 1}
-            />
-          </li>
-        ))
-      }
-    </ul>
-
     {
-      pending.length > 0 && (
-        <p class="step-pending">
-          {pending.map((step) => `${stepNumber(step)}. ${step.title}`).join(' · ')}
-        </p>
+      published.length > 0 && (
+        <div class="pocetok-actions">
+          <a class="btn btn--primary" href={localePath(locale, published[0].slug)}>
+            {t('nav.cta')}
+          </a>
+
+          <details class="steps-toggle">
+            <summary class="btn btn--secondary">
+              <span class="show-label">{t('pocetok.showAll')}</span>
+              <span class="hide-label">{t('pocetok.hideAll')}</span>
+            </summary>
+
+            <ul class="card-grid">
+              {
+                published.map((step) => (
+                  <li>
+                    <ArticleCard
+                      href={localePath(locale, step.slug)}
+                      title={step.title}
+                      description={step.description}
+                      badge={`${stepNumber(step)} / ${totalSteps}`}
+                      meta={categoryMeta[step.category].label}
+                      current={stepNumber(step) === 1}
+                    />
+                  </li>
+                ))
+              }
+            </ul>
+
+            {
+              pending.length > 0 && (
+                <p class="step-pending">
+                  {pending.map((step) => `${stepNumber(step)}. ${step.title}`).join(' · ')}
+                </p>
+              )
+            }
+          </details>
+        </div>
       )
     }
 
@@ -73,6 +90,8 @@ const others = await otherGuides(locale);
                   href={localePath(locale, articlePath(article))}
                   title={article.data.title}
                   description={article.data.description}
+                  image={article.data.image}
+                  imageAlt={article.data.imageAlt}
                 />
               </li>
             ))}
@@ -84,6 +103,52 @@ const others = await otherGuides(locale);
 </BaseLayout>
 
 <style>
+  .pocetok-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: var(--space-3);
+    margin-block-end: var(--space-4);
+  }
+
+  /* The full step list lives inside <details>: collapsed on load, no JS
+     needed to reveal it. The summary is styled as the secondary button;
+     the default disclosure triangle is dropped so it reads as one. */
+  .steps-toggle {
+    flex-basis: 100%;
+  }
+
+  .steps-toggle > summary {
+    display: inline-block;
+    list-style: none;
+    cursor: pointer;
+  }
+
+  .steps-toggle > summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .steps-toggle > summary::marker {
+    content: '';
+  }
+
+  .steps-toggle .card-grid,
+  .steps-toggle .step-pending {
+    margin-block-start: var(--space-4);
+  }
+
+  .steps-toggle .hide-label {
+    display: none;
+  }
+
+  .steps-toggle[open] > summary .show-label {
+    display: none;
+  }
+
+  .steps-toggle[open] > summary .hide-label {
+    display: inline;
+  }
+
   /* Separates the off-sequence guides from the nine steps without a card:
      the steps above are numbered, these are not. */
   .other {

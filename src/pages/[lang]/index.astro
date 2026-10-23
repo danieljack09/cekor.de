@@ -1,12 +1,11 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import ArticleCard from '../../components/ArticleCard.astro';
-import SequenceRail from '../../components/SequenceRail.astro';
-import { activeLocales, intlLocale, localePath, type Locale } from '../../i18n/config';
+import HeroSlider from '../../components/HeroSlider.astro';
+import { activeLocales, localePath, type Locale } from '../../i18n/config';
 import { useTranslations } from '../../i18n/ui';
 import { publishedSteps, stepNumber, totalSteps } from '../../data/sequence';
-import { publishedSections } from '../../data/sections';
-import { articlePath, newsArticles } from '../../lib/articles';
+import { sectionById } from '../../data/sections';
+import { heroSlides as buildHeroSlides } from '../../lib/articles';
 
 export function getStaticPaths() {
   return activeLocales.map((lang) => ({ params: { lang } }));
@@ -15,120 +14,686 @@ export function getStaticPaths() {
 const locale = Astro.params.lang as Locale;
 const t = useTranslations(locale);
 
-// How many items each section previews here. The full list is one link away.
-const PREVIEW = 3;
+// Real facts about the site itself, not invented German-law numbers - the
+// content rules only forbid guessing facts about German bureaucracy, not
+// stating our own editorial policy (every article cites a source; no
+// cookies or accounts; totalSteps is derived, never hardcoded).
+const stats = [
+  { value: String(totalSteps), label: 'чекори за стабилен старт' },
+  { value: '100%', label: 'проверени информации' },
+  { value: '2026', label: 'актуелни закони & вести' },
+  { value: 'MK', label: 'на разбирлив македонски' },
+];
 
-// One block per published section, read from src/data/sections.ts. An
-// unpublished section is not shown at all - there is no page to link to.
-const sections = publishedSections();
+// The nine-step sequence, brief: title + one-line description only, the
+// same copy already used on the Почеток page itself - not new content.
+// Unpublished steps are never shown, same rule as everywhere else.
+const pocetok = sectionById('pocetok');
+const steps = publishedSteps();
 
-// The steps come from src/data/sequence.ts; only published ones are links.
-const steps = publishedSteps().slice(0, PREVIEW);
-const news = (await newsArticles(locale)).slice(0, PREVIEW);
-
-const formatDate = new Intl.DateTimeFormat(intlLocale[locale], {
-  day: 'numeric',
-  month: 'long',
-  year: 'numeric',
-}).format;
+// Always 5 slides: real news first, placeholders fill the rest.
+const heroSlides = await buildHeroSlides(locale, { placeholders: true });
 ---
 
 {/* No `title`: BaseLayout composes the homepage pattern, Чекор — tagline. */}
-<BaseLayout description={t('site.description')} locale={locale} showTagline wide>
-  <div class="wrap wrap--wide">
-    {
-      sections.map((section) => {
-        const href = localePath(locale, section.slug);
-        return (
-          <section class="block">
-            <h2 class="block__heading">
-              <a href={href}>{section.label}</a>
-            </h2>
-            <p class="block__intro">{section.intro}</p>
-
-            {section.id === 'pocetok' && <SequenceRail />}
-
-            {section.id === 'pocetok' &&
-              (steps.length === 0 ? (
-                <p class="block__soon">{t('home.empty')}</p>
-              ) : (
-                <>
-                  <ul class="card-grid">
-                    {steps.map((step) => (
-                      <li>
-                        <ArticleCard
-                          href={localePath(locale, step.slug)}
-                          title={step.title}
-                          description={step.description}
-                          badge={`${stepNumber(step)} / ${totalSteps}`}
-                          current={stepNumber(step) === 1}
-                        />
-                      </li>
-                    ))}
-                  </ul>
-                  <p class="more">
-                    <a href={href}>{t('pocetok.all')} →</a>
-                  </p>
-                </>
-              ))}
-
-            {section.id === 'novosti' &&
-              (news.length === 0 ? (
-                <p class="block__soon">{t('home.empty')}</p>
-              ) : (
-                <>
-                  <ul class="card-grid card-grid--3up">
-                    {news.map((article) => (
-                      <li>
-                        <ArticleCard
-                          href={localePath(locale, articlePath(article))}
-                          title={article.data.title}
-                          description={article.data.description}
-                          badge={formatDate(article.data.date!)}
-                        />
-                      </li>
-                    ))}
-                  </ul>
-                  <p class="more">
-                    <a href={href}>{t('novosti.all')} →</a>
-                  </p>
-                </>
-              ))}
-          </section>
-        );
-      })
-    }
+<BaseLayout description={t('site.description')} locale={locale} wide>
+  {/* Featured-article slider - shared with /mk/novosti/, see HeroSlider. */}
+  <div class="hero-slider-band">
+    <div class="wrap wrap--wide">
+      <HeroSlider id="home" slides={heroSlides} />
+    </div>
   </div>
+
+  {/* Full-bleed background band: the band itself has no horizontal
+      padding, so the inner .wrap--wide still shares the same left edge as
+      the header/footer. Only vertical padding + background differ. */}
+  <div class="hero-band">
+    <div class="wrap wrap--wide">
+      <section class="hero">
+        <div class="hero__top">
+          <h1 class="hero__headline">{t('site.tagline')}</h1>
+          <p class="hero__sub">{t('site.description')}</p>
+        </div>
+
+        <div class="hero__stats">
+          {
+            stats.map((stat, i) => (
+              <div class="stat" style={`animation-delay: ${((i + 1) * 0.1).toFixed(1)}s`}>
+                <p class="stat__label">{stat.label}</p>
+                <p class="stat__value">{stat.value}</p>
+              </div>
+            ))
+          }
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div class="steps-band">
+    <div class="wrap wrap--wide">
+    <section class="steps-section">
+      <h2 class="steps-heading">Деветте чекори по пристигнување во Германија</h2>
+      <p class="steps-sub">{pocetok.intro}</p>
+
+      {/* Master-detail stepper, zero JS: hidden radio inputs + CSS :checked
+          drive which detail card shows, same family of technique as the
+          nav menu's <details>. Radios come first as a flat sibling group
+          so :checked can reach both the matching tab label and the
+          matching panel via general-sibling + :nth-of-type matching
+          (enumerated below for n=1..9, using :has() to reach the matching
+          panel - purely structural, no content coupling, so it stays
+          correct even if step copy changes). The radio is nested directly
+          INSIDE its label (not a separate `for`/id-linked sibling): a
+          label wrapping its own input toggles it natively on click, with
+          no `for` attribute to bridge - that bridge was what let the
+          browser's focus-follow behaviour jump the page to the top. */}
+      <div class="stepper">
+        <div class="stepper__layout">
+          <div class="stepper__tabs">
+            {
+              steps.map((step, i) => {
+                const n = stepNumber(step);
+                return (
+                  <label class="stepper__tab">
+                    <input
+                      type="radio"
+                      name="step-picker"
+                      id={`step-tab-${i + 1}`}
+                      class="stepper__radio visually-hidden"
+                      checked={i === 0}
+                    />
+                    <span class="stepper__tab-badge" aria-hidden="true">
+                      {n}
+                    </span>
+                    <span class="stepper__tab-content">
+                      <span class="stepper__tab-title">{step.title}</span>
+                    </span>
+                  </label>
+                );
+              })
+            }
+          </div>
+
+          <div class="stepper__panels">
+            {
+              steps.map((step) => (
+                <div class="stepper__panel">
+                  <h3 class="stepper__panel-title">
+                    <a href={localePath(locale, step.slug)}>{step.title}</a>
+                  </h3>
+                  <p class="stepper__panel-desc">{step.description}</p>
+                  <a class="stepper__panel-link" href={localePath(locale, step.slug)}>
+                    <span>Прочитај повеќе</span>
+                    <span class="stepper__panel-link-arrow" aria-hidden="true">
+                      →
+                    </span>
+                  </a>
+                </div>
+              ))
+            }
+          </div>
+        </div>
+      </div>
+
+      <p class="more">
+        <a href={localePath(locale, pocetok.slug)}>{t('pocetok.all')} →</a>
+      </p>
+    </section>
+    </div>
+  </div>
+
 </BaseLayout>
 
 <style>
-  .block + .block {
-    margin-block-start: var(--space-6);
+  .hero-slider-band {
+    padding-block: var(--space-5);
   }
 
-  .block__heading {
-    margin-block-start: 0;
+  /* Full-bleed bands: edge-to-edge background colour, with the inner
+     .wrap--wide keeping content at the same centered measure/left edge as
+     the header and footer. No divider line needed between them - the
+     colour shift itself is the separation. */
+  .hero-band {
+    background: #fff;
+    padding-block: var(--space-5);
   }
 
-  /* The link inherits the heading's colour and size; only the underline marks
-     it as a link. */
-  .block__heading a {
-    color: inherit;
-    text-decoration-thickness: 1px;
+  /* A cool off-white, distinct from the hero band's pure white above -
+     background-only separation, not a brand accent, so introducing it
+     doesn't compete with the token palette's actual colours. Vertical
+     padding only: horizontal spacing stays on .wrap's own gutter, so
+     content keeps the same left edge as the header/footer. */
+  .steps-band {
+    background: #f1f5f9;
+    padding-block: 4rem;
   }
 
-  .block__heading a:hover {
-    text-decoration-thickness: 2px;
+  .hero__top {
+    display: grid;
+    gap: var(--space-4);
+    margin-block-end: var(--space-5);
   }
 
-  .block__intro {
+  @media (min-width: 760px) {
+    .hero__top {
+      grid-template-columns: 1.4fr 1fr;
+      align-items: start;
+      gap: var(--space-5);
+    }
+  }
+
+  .hero__headline {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 0;
+  }
+
+  @media (min-width: 640px) {
+    .hero__headline {
+      font-size: 2.75rem;
+    }
+  }
+
+  .hero__sub {
+    font-family: var(--font-ui);
+    color: var(--ink-quiet);
+    font-size: 1.0625rem;
+    margin: 0;
+  }
+
+  /* Fade + slide up on load, staggered per column via each .stat's own
+     inline animation-delay (set in the markup: 0.1s, 0.2s, 0.3s, 0.4s).
+     `both` fill-mode holds the 0% state during the delay (so items don't
+     flash fully visible before their turn) and the 100% state afterwards.
+     A deliberate, explicit exception to the site's usual "animation only
+     on hover/click, never on load" rule, confirmed for this one section.
+     prefers-reduced-motion (global.css) still neutralises all of it. */
+  @keyframes stat-fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(15px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes stat-pulse {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.08);
+    }
+  }
+
+  .hero__stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-4);
+    border-block-start: 1px solid var(--rule);
+    padding-block-start: var(--space-4);
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    animation: stat-fade-in 0.5s ease both;
+    transition: transform 0.3s ease;
+  }
+
+  .stat:hover {
+    transform: translateY(-4px);
+  }
+
+  @media (min-width: 640px) {
+    .hero__stats {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    /* Subtle card separation between columns - only once they're
+       genuinely a single row side by side; the 2-column mobile layout
+       stays divider-free to keep it simple. */
+    .stat:not(:first-child) {
+      border-inline-start: 1px solid var(--rule);
+      padding-inline-start: var(--space-4);
+    }
+  }
+
+  .stat__label {
+    font-family: var(--font-ui);
+    font-size: 0.8125rem;
+    color: var(--ink-quiet);
+    margin-block-end: var(--space-1);
+  }
+
+  .stat__value {
+    font-family: var(--font-ui);
+    font-weight: 700;
+    font-size: 2rem;
+    /* The site's primary accent, same token used for headings/links/CTA. */
+    color: var(--green);
+    margin: 0;
+    transition: color 0.3s ease;
+    /* Runs once, after the entrance settles (the last item's fade-in ends
+       around 0.9s: 0.4s delay + 0.5s duration). */
+    animation: stat-pulse 1s ease 1s;
+  }
+
+  /* The "glow": a shift to the secondary accent rather than a literal
+     box-shadow glow, which would read as out of place on this site's flat,
+     shadow-free number treatment. */
+  .stat:hover .stat__value {
+    /* A bolder, deeper variant of the existing primary-accent token
+       (derived via color-mix, not a new hex value - "do not introduce a
+       new colour" applies to hover states too) rather than the teal
+       --ochre, which read as too close to the resting blue to register as
+       a clear hover change. */
+    color: color-mix(in srgb, var(--green) 75%, black);
+  }
+
+  .steps-heading {
+    font-size: 1.75rem;
+    margin-block-end: var(--space-1);
+  }
+
+  .steps-sub {
+    font-family: var(--font-ui);
+    color: var(--ink-quiet);
+    margin-block-end: var(--space-4);
+  }
+
+  /* Purely decorative (aria-hidden): a short "Чекор n" label per step, so
+     it fits any width and the rule always ends exactly at the last
+     marker - no title/description text pressure on this grid at all. */
+  .steps-track {
+    display: grid;
+    grid-template-columns: repeat(var(--steps-count), minmax(0, 1fr));
+    grid-template-rows: auto auto;
+    column-gap: var(--space-3);
+    row-gap: 0;
+    margin-block-end: var(--space-4);
+  }
+
+  .steps-track__rule {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    align-self: center;
+    height: 1px;
+    background: var(--rule);
+  }
+
+  .step-num {
+    grid-row: 1;
+    font-family: var(--font-ui);
+    font-size: 0.75rem;
+    font-weight: 600;
     color: var(--ink-quiet);
     margin-block-end: var(--space-2);
   }
 
-  .block__soon {
+  .steps-track__marker {
+    grid-row: 2;
+    align-self: center;
+    justify-self: start;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid var(--ochre);
+    background: var(--paper);
+  }
+
+  .steps-track__marker--current {
+    background: var(--ochre);
+  }
+
+  /* The real, accessible content: a normally-wrapping responsive grid,
+     independent of the track's column count - a 13-letter word like
+     "осигурување" gets a whole card to wrap in, not a ~100px sliver. */
+  .steps-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-4) var(--space-3);
+  }
+
+  @media (min-width: 640px) {
+    .steps-list {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .steps-list__item a {
+    display: block;
+    text-decoration: none;
+  }
+
+  .steps-list__num {
+    display: block;
     font-family: var(--font-ui);
+    font-size: 0.8125rem;
+    font-weight: 600;
     color: var(--ink-quiet);
-    margin-block-end: 0;
+    margin-block-end: var(--space-1);
+  }
+
+  .steps-list__title {
+    display: block;
+    font-family: var(--font-ui);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--ink);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.18em;
+    margin-block-end: var(--space-1);
+  }
+
+  .steps-list__item a:hover .steps-list__title {
+    text-decoration-thickness: 2px;
+  }
+
+  .steps-list__desc {
+    display: block;
+    font-family: var(--font-ui);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--ink-quiet);
+  }
+
+  /* --------------------------------------------------------------------
+     Master-detail stepper - plain HTML + CSS, zero JS. Hidden radios (one
+     per step, visually-hidden but keyboard-operable like any native radio
+     group) drive which tab looks active and which panel shows, through
+     :checked and a fixed set of structural position rules below.
+     -------------------------------------------------------------------- */
+
+  /* .visually-hidden makes each radio position:absolute. Without a
+     positioned ancestor here, their containing block resolves all the way
+     up to the document root, and the browser's "scroll the newly-focused
+     control into view" behaviour can then jump to the top of the page
+     instead of staying local to the stepper. position: relative here
+     gives them a correctly-scoped containing block. */
+  .stepper {
+    position: relative;
+  }
+
+  .stepper__layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+
+  @media (min-width: 760px) {
+    .stepper__layout {
+      /* Narrower than a straight 1/3 split - the left column only needs
+         to hold short labels, not prose. */
+      grid-template-columns: minmax(190px, 280px) 1fr;
+      align-items: start;
+    }
+  }
+
+  /* Outer padding so a hovered/active content pill never touches the
+     column edge - it has room to sit "inside" the column, not flush
+     against it. */
+  .stepper__tabs {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    /* Tuned directly in rem, not a spacing token: the gap between items
+       needed to land in a specific 0.6-0.8rem range. */
+    gap: 0.7rem;
+    padding-inline: var(--space-1);
+  }
+
+  /* The vertical timeline: one continuous line behind all 9 badges,
+     running from the first badge's centre to the last's. Positioned
+     against .stepper__tabs' own padding-box, independent of each row's
+     content pill below. */
+  .stepper__tabs::before {
+    content: '';
+    position: absolute;
+    inset-inline-start: calc(var(--space-1) + 11px);
+    inset-block: 14px;
+    width: 2px;
+    background: var(--green-pale);
+  }
+
+  /* Pure layout: positions the badge (on the line) next to the content
+     pill. Carries no background of its own, so hovering/activating a row
+     can never paint over the line or the badge. */
+  .stepper__tab {
+    position: relative;
+    display: flex;
+    /* Centers the title against the badge - there's only one line of text
+       now, so centering reads better than top-aligning. */
+    align-items: center;
+    gap: var(--space-2);
+    cursor: pointer;
+    font-family: var(--font-ui);
+    line-height: 1.5;
+    /* No padding-block here: .stepper__tab-content already has its own
+       vertical padding for a comfortable click target. Padding here too
+       would stack on top of the .stepper__tabs gap above and push items
+       further apart than intended. */
+  }
+
+  /* The badge sits on the timeline, so it needs to be above the line
+     (z-index) and opaque (background: var(--paper)) so the line appears
+     to pass behind it rather than through it. Fixed in place - only the
+     content pill slides on hover, not the badge. */
+  .stepper__tab-badge {
+    position: relative;
+    z-index: 1;
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid var(--ochre);
+    background: var(--paper);
+    color: var(--ochre);
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+
+  /* The actual hover/active surface - a pill that only ever wraps the
+     text, never the badge/line column to its left. */
+  .stepper__tab-content {
+    display: flex;
+    align-items: center;
+    flex: 1 1 auto;
+    min-width: 0;
+    border-radius: var(--radius);
+    padding: var(--space-1) var(--space-2);
+    /* A deliberate, scoped exception to the site's usual "no animation"
+       rule, same family as the stepper panel cross-fade: a short (150ms)
+       hover slide. prefers-reduced-motion neutralises it. */
+    transition:
+      transform 150ms ease,
+      background-color 150ms ease;
+  }
+
+  .stepper__tab:hover .stepper__tab-content {
+    background: rgba(26, 39, 51, 0.05);
+    transform: translateX(4px);
+  }
+
+  .stepper__tab-title {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.35;
+  }
+
+  /* Stacked in one grid cell so the container's height follows the
+     tallest panel while every panel cross-fades in place - a genuine
+     opacity/transform transition, not a display:none jump cut. A
+     deliberate, scoped exception to the site's usual "no animation" rule,
+     confirmed for this one interactive component; prefers-reduced-motion
+     still neutralises it. */
+  .stepper__panels {
+    display: grid;
+    /* Stays in view while a taller left list scrolls past it, instead of
+       floating isolated at the top once the user scrolls further down. */
+    position: sticky;
+    top: var(--space-4);
+  }
+
+  .stepper__panel {
+    grid-area: 1 / 1;
+    /* Pure white against the steps-band's off-white (#f1f5f9) - needs real
+       separation from it, unlike .card elsewhere which sits on --paper
+       and only needs the usual --shadow. */
+    background: #fff;
+    border: 1px solid var(--green-pale);
+    border-inline-start: var(--border-accent) solid var(--ochre);
+    /* A one-off larger radius and softer shadow, scoped to this single
+       card only - not a change to --radius/--shadow, which stay 4px/
+       subtle everywhere else on the site. This card is meant to stand out
+       sharply, not match the restrained chrome used elsewhere. */
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    padding: var(--space-4);
+    opacity: 0;
+    transform: translateY(6px);
+    pointer-events: none;
+    transition:
+      opacity 200ms ease,
+      transform 200ms ease;
+  }
+
+  .stepper__panel-title {
+    margin-block-start: 0;
+  }
+
+  .stepper__panel-title a {
+    color: var(--ink);
+    text-decoration-thickness: 1px;
+  }
+
+  .stepper__panel-title a:hover {
+    text-decoration-thickness: 2px;
+  }
+
+  .stepper__panel-desc {
+    color: var(--ink-quiet);
+  }
+
+  /* A deliberate, confirmed exception to the site's "links are always
+     underlined" rule, for this one link only: color + bold weight + the
+     arrow glyph serve as the always-visible cues instead, with a
+     hover-only border-bottom (never under the arrow, which lives in its
+     own span). */
+  .stepper__panel-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--font-ui);
+    font-weight: 600;
+    font-size: 0.9375rem;
+    color: var(--green);
+    text-decoration: none;
+    border-block-end: 2px solid transparent;
+    transition: border-color 0.2s ease;
+  }
+
+  .stepper__panel-link:hover {
+    border-block-end-color: var(--green);
+  }
+
+  .stepper__panel-link-arrow {
+    transition: transform 0.2s ease;
+  }
+
+  .stepper__panel-link:hover .stepper__panel-link-arrow {
+    transform: translateX(4px);
+  }
+
+  /* The tab active/focus look no longer needs one rule per index -
+     :has() lets a tab style itself from its OWN nested radio,
+     regardless of position. */
+  .stepper__tab:has(.stepper__radio:checked) .stepper__tab-content,
+  .stepper__tab:has(.stepper__radio:focus-visible) .stepper__tab-content {
+    background: var(--green-pale);
+  }
+  .stepper__tab:has(.stepper__radio:checked) .stepper__tab-badge,
+  .stepper__tab:has(.stepper__radio:focus-visible) .stepper__tab-badge {
+    background: var(--ochre);
+    color: var(--paper);
+  }
+
+  /* The panel lives in a different branch of the tree from its radio
+     (nested inside a label elsewhere), so :has() checks the whole
+     .stepper for a specific checked id and reveals the matching
+     panel by position. Covers up to 9 - the sequence's fixed length
+     (src/data/sequence.ts). */
+  .stepper:has(#step-tab-1:checked) .stepper__panel:nth-of-type(1) {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+
+  .stepper:has(#step-tab-2:checked) .stepper__panel:nth-of-type(2) {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+
+  .stepper:has(#step-tab-3:checked) .stepper__panel:nth-of-type(3) {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+
+  .stepper:has(#step-tab-4:checked) .stepper__panel:nth-of-type(4) {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+
+  .stepper:has(#step-tab-5:checked) .stepper__panel:nth-of-type(5) {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+
+  .stepper:has(#step-tab-6:checked) .stepper__panel:nth-of-type(6) {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+
+  .stepper:has(#step-tab-7:checked) .stepper__panel:nth-of-type(7) {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+
+  .stepper:has(#step-tab-8:checked) .stepper__panel:nth-of-type(8) {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+
+  .stepper:has(#step-tab-9:checked) .stepper__panel:nth-of-type(9) {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+
+  .more {
+    font-family: var(--font-ui);
+    margin-block: var(--space-4) 0;
   }
 </style>

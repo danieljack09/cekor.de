@@ -1,10 +1,11 @@
 ---
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import ArticleCard from '../../../components/ArticleCard.astro';
+import HeroSlider from '../../../components/HeroSlider.astro';
 import { activeLocales, intlLocale, localePath, type Locale } from '../../../i18n/config';
 import { useTranslations } from '../../../i18n/ui';
 import { sectionById } from '../../../data/sections';
-import { articlePath, newsArticles } from '../../../lib/articles';
+import { articlePath, heroSlides, newsArticles } from '../../../lib/articles';
 
 export function getStaticPaths() {
   return activeLocales.map((lang) => ({ params: { lang } }));
@@ -20,6 +21,10 @@ const formatDate = new Intl.DateTimeFormat(intlLocale[locale], {
   month: 'long',
   year: 'numeric',
 }).format;
+
+// The newest go in the slider - the same one as on the landing page, real
+// articles only. Below it, every news article as a list, two per row.
+const slides = await heroSlides(locale, { placeholders: false });
 ---
 
 <BaseLayout
@@ -40,19 +45,32 @@ const formatDate = new Intl.DateTimeFormat(intlLocale[locale], {
           <p class="empty__note">{t('novosti.emptyNote')}</p>
         </div>
       ) : (
-        <ul class="card-grid card-grid--3up">
-          {news.map((article) => (
-            <li>
-              <ArticleCard
-                href={localePath(locale, articlePath(article))}
-                title={article.data.title}
-                description={article.data.description}
-                badge={formatDate(article.data.date!)}
-              />
-            </li>
-          ))}
-        </ul>
+        <>
+          <HeroSlider id="novosti" slides={slides} />
+
+          <h2 class="all-news">{t('novosti.all')}</h2>
+          <ul class="card-grid">
+            {news.map((article) => (
+              <li>
+                <ArticleCard
+                  href={localePath(locale, articlePath(article))}
+                  title={article.data.title}
+                  description={article.data.description}
+                  image={article.data.image}
+                  imageAlt={article.data.imageAlt}
+                  badge={formatDate(article.data.date!)}
+                />
+              </li>
+            ))}
+          </ul>
+        </>
       )
     }
   </div>
 </BaseLayout>
+
+<style>
+  .all-news {
+    margin-block: var(--space-6) var(--space-3);
+  }
+</style>

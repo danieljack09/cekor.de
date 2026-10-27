@@ -10,16 +10,25 @@ and may not be a confident reader.
 
 ## Brand
 
-- Site name is **Чекор** — Cyrillic wordmark, rendered in IBM Plex Sans as
+- Site name is **Чекор** — Cyrillic wordmark, rendered in Source Sans 3 as
   **live text**. No logo image files. The only image is `public/favicon.svg`:
-  a single Ч in `--paper` on a `--green` square, drawn as a path because
-  favicons render with no access to the self-hosted font.
+  a single Ч in `--paper` on a rounded `--green` tile (rx 7), drawn as a path because
+  favicons render with no access to the self-hosted font. Linked as
+  `/favicon.svg?v=2`: bump the `v` whenever the icon changes, or browsers keep
+  showing the cached old one.
 - **Exception: small inline SVG data charts in articles** (`BarCompare.astro`).
   They are markup, not files: no extra request, a few hundred bytes, text in
   the self-hosted font. They may only repeat numbers the article already
   states and sources, never add one, and every bar starts at zero. Still no
-  photos, illustrations or raster images anywhere: the reader is on a cheap
-  phone on a slow connection.
+  illustrations or decorative raster images: the reader is on a cheap phone
+  on a slow connection.
+- **Exception: one photo per article** (`image` in the frontmatter, Daniel's
+  call). Shown on the article's cards without a credit, and once in the
+  article body via `ArticleImage.astro`: under the "На кратко" box, so the
+  answer still comes first, with the credit linked to its source directly
+  underneath. Lazy-loaded, webp at build time. Only photos that are free to
+  use (CC0 / public domain, or the source's own terms with its exact credit
+  wording). Never AI-generated images.
 - Tagline: **Германија, чекор по чекор**. Under the wordmark on the homepage
   and in the homepage `<meta description>` — **not on every page**.
 - `<title>` pattern `{Article title} — Чекор`, homepage
@@ -62,7 +71,8 @@ sections, the same way `sequence.ts` is for steps:
 
 | Section | URL | Status |
 |---|---|---|
-| Почеток во Германија | `/mk/pocetok-vo-germanija/` | the nine steps in order + "Други водичи" (guides with `sequenceStep: null`) |
+| Почеток во Германија | `/mk/pocetok-vo-germanija/` | the nine steps in order; a "Други водичи →" button (`.btn--secondary`) beside the h1 leads to the sub-page |
+| └ Други водичи | `/mk/pocetok-vo-germanija/drugi-vodici/` | every guide with `sequenceStep: null`, as cards. The guides keep their own URLs (`/mk/<slug>/`). Slug in `otherGuidesSlug` in `sections.ts` |
 | Новости | `/mk/novosti/`, articles at `/mk/novosti/<slug>/` | news, newest first; "Наскоро." while empty |
 | Попусти | `/mk/popusti/` | discounted products, affiliate; "Наскоро." while empty |
 
@@ -71,9 +81,13 @@ link), intro line, a preview of three items and a "Сите … →" link.
 
 The header nav under the wordmark lists the published sections. An unpublished
 section is never in the nav, on the landing page, or linked anywhere. No
-hamburger; the row wraps on a 360px screen.
+hamburger. Below 800px the header is two compact rows: wordmark + CTA,
+then the three sections on one line (fits down to 320px).
 
-The active section gets a 2px `--ochre` bottom border. Every link carries a
+The header is light (`--paper`, slightly see-through, hairline `--rule` at the
+foot, a soft shadow fading in on scroll). Wordmark and nav in ink; the only
+blue is the filled "Започни тука" CTA and the active section, which gets a
+2px `--green` bottom border. Every link carries a
 transparent 2px border so marking one active shifts nothing. `BaseLayout` takes
 an `activeSection` prop: section pages pass their own, and `ArticleLayout`
 derives it from the article's folder via `sectionOfArticle()` — news for
@@ -97,7 +111,11 @@ slugs. An article using one fails the build.
 - Every article opens with the "На кратко" box: the answer in under 200
   characters, before any explanation.
 - Affiliate links are marked visibly with "Werbelink" next to the link. Never
-  in the footer. Never hidden.
+  in the footer. Never hidden. Always through `Werbelink.astro`:
+  `<Werbelink href="https://…">Starlink</Werbelink>` renders the link with a
+  grey "Werbelink" badge glued to it (no line break between them),
+  `rel="sponsored nofollow noopener"`, new tab, https only. Using it puts
+  "Werbelink" in the body, so the build then demands `affiliate: true`.
 - **Never publish anything that reads as legal, tax or insurance advice.**
   Describe procedures and point to official sources.
 
@@ -128,6 +146,8 @@ The folder decides the section; there is no `section` field.
 | `date` | date | null | **news: required**, the day the news is about. Guides: must be absent |
 | `category` | string | null | guides off the sequence only, as a label. Steps and news: absent |
 | `affiliate` | boolean | default `false` |
+| `image` / `imageAlt` | image / string | optional card image in `src/assets/articles/<slug>.jpg`; `imageAlt` required with it |
+| `imageCredit` / `imageLicense` / `imageSource` | string / string / https url | who made the image, its licence, the page it came from. All three together. Shown in grey under the image in the article body, linked to the source. Not shown on cards. Use the source's exact credit wording |
 
 Quote any frontmatter value containing `": "` — an unquoted YAML scalar cannot
 hold it, and the build fails with a bare "bad indentation" error that does not
@@ -223,7 +243,8 @@ src/
   components/                Callout, BarCompare, HeroSlider, SequenceStrip, SummaryBox, SourceLine, NextStep
   pages/[lang]/              every real URL carries a locale prefix
   pages/[lang]/index.astro   landing page, previews per section
-  pages/[lang]/pocetok-vo-germanija.astro
+  pages/[lang]/pocetok-vo-germanija/index.astro         the nine steps
+  pages/[lang]/pocetok-vo-germanija/drugi-vodici.astro  Други водичи sub-page
   pages/[lang]/novosti/index.astro
   pages/[lang]/[...slug].astro   guides and news (+ runs validate-articles)
   pages/404.astro            outside [lang]: a 404 has no locale to assume
@@ -253,7 +274,7 @@ churn for a values-only change.
 | Token | | Use |
 |---|---|---|
 | `--ink` | `#1A2733` | body text |
-| `--green` | `#1D70B8` | header, structure, primary accent |
+| `--green` | `#1D70B8` | CTA, links, active-nav underline, structure, primary accent |
 | `--green-pale` | `#DCE9F2` | callout fills, dividers |
 | `--paper` | `#F7F9FB` | page background |
 | `--ochre` | `#158187` | "важно" callouts, current sequence step |
@@ -265,7 +286,11 @@ Spending `--alarm` on anything else spends the colour's credibility.
 `--shadow-rail` exist for index-page cards (`.card`), the hero-scale sequence
 rail (`.rail__bar`) and `NextStep` (below) only — a deliberate, subtle lift,
 not rakurs.mk's pill buttons or deep drop shadows. `--radius` (4px) is for
-`.card` and button-like elements. The left-accent boxes on article pages —
+`.card` and button-like elements. A card with a photo (`.card--image`: news
+and Други водичи) is the exception: even 1px `--green-pale` border all round
+instead of the left accent, `--radius-card` (8px), `--shadow`, and on hover a
+3px lift with `--shadow-hover` and a `--green` border. Други водичи shows
+three across on wide screens (`.card-grid--3up`). The left-accent boxes on article pages —
 `Callout` and `SummaryBox` — are softly rounded too, but with their own
 larger `--radius-callout` (10px), not `--radius`: big enough to read as a
 deliberately shaped block, not a sharp inline aside, but distinct from the
@@ -283,8 +308,18 @@ in the flow. Left-border accents are 3px (`--border-accent`).
 Single centered column, max 62 characters, mobile first, on article pages.
 Index pages (landing, Почеток, Новости, Попусти) use the wider `.wrap--wide`
 column with a card grid (`.card-grid` / `.card`) — see "The card grid" above.
-Body Source Serif 4 17px/18px at line-height 1.75; headings, nav and tables IBM
-Plex Sans.
+One typeface everywhere: Source Sans 3 (400, 400 italic, 600, 700; Cyrillic
+and Latin subsets). Body 18px/19px at line-height 1.7. Chosen because its
+GSUB has the Macedonian `locl` (MKD) italic forms; Inter, Manrope, Golos,
+Onest and IBM Plex Sans do not. Check any replacement font the same way.
+Headings are `--ink`, not blue (blue = clickable or structure). h1/h2 bold
+700 with slightly tighter tracking (-0.015em / -0.01em) and leading
+(1.15 / 1.2); h3/h4 600. h1 is 34px / 40px from 640px, with a
+short 48×4px rule above it in the German flag colours, three equal bands
+(#000000 / #DD0000 / #FFCE00), not on the landing hero. **The only place the
+flag colours may appear** - never in text or larger areas: gold fails
+contrast on paper, red is `--alarm`, and a black-red-gold site reads as an
+official German state site.
 
 **`.btn` / `.btn--primary`** is the one filled-button pattern on the site (the
 "Чекор по чекор во Германија" CTA on Почеток). Solid `--green` fill, `--paper`
@@ -325,8 +360,6 @@ above for anyone with that OS setting on.
   `<a>` — nothing to send a reader to yet) rather than real featured
   content or real discounts.
 - FAQ / HowTo schema markup on articles.
-- Affiliate link component with the visible "Werbelink" marker. Worth building
-  *before* the first affiliate link goes in, not after.
 - `za-nas` and `kontakt` are "Наскоро." stubs. `za-nas` carries most of the
   site's trust — who writes the articles, how sourcing works, how affiliate
   links are handled.
@@ -334,8 +367,9 @@ above for anyone with that OS setting on.
   eRecht24 before launch** (links are in the page comments). Affiliate links
   make the site commercial, so § 5 DDG applies in full.
 - The Попусти section (discounted products, affiliate) is published and live
-  at `/mk/popusti/`, showing "Наскоро." Needs the Werbelink component before
-  the first real affiliate link goes in.
+  at `/mk/popusti/`, showing "Наскоро." The Werbelink component exists; no
+  real affiliate link is in yet. The planned first one is a Starlink referral
+  in `internet-vo-germanija.mdx`.
 - No news articles yet: `/mk/novosti/` shows "Наскоро."
 - Open: may news cite news outlets, or only official sources? Until decided,
   the content rules above apply unchanged.

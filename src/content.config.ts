@@ -84,10 +84,32 @@ const articles = defineCollection({
 
     /** What the image shows, in Macedonian. Required with `image`. */
     imageAlt: z.string().min(1).optional(),
-  }).refine((data) => !data.image || data.imageAlt, {
-    message: 'an article with an image needs imageAlt',
-    path: ['imageAlt'],
-  }),
+
+    /**
+     * Who made the image and where it comes from, shown in grey under it
+     * wherever it appears: "Syced / Wikimedia Commons". Use the exact credit
+     * wording the source asks for, e.g. "Deutscher Bundestag / Name".
+     */
+    imageCredit: z.string().min(1).optional(),
+
+    /** The image's licence as the source states it: "CC0", "CC BY 4.0". */
+    imageLicense: z.string().min(1).optional(),
+
+    /** The page the image was taken from, linked under the sources. https. */
+    imageSource: z
+      .string()
+      .url()
+      .refine((u) => u.startsWith('https://'), { message: 'imageSource must be https' })
+      .optional(),
+  })
+    .refine((data) => !data.image || data.imageAlt, {
+      message: 'an article with an image needs imageAlt',
+      path: ['imageAlt'],
+    })
+    .refine((data) => !data.imageCredit || (data.image && data.imageLicense && data.imageSource), {
+      message: 'imageCredit needs image, imageLicense and imageSource',
+      path: ['imageCredit'],
+    }),
 });
 
 export const collections = { articles };

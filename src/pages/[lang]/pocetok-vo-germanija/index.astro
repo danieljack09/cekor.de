@@ -1,12 +1,12 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import ArticleCard from '../../components/ArticleCard.astro';
-import SequenceRail from '../../components/SequenceRail.astro';
-import { activeLocales, localePath, type Locale } from '../../i18n/config';
-import { useTranslations } from '../../i18n/ui';
-import { categoryMeta, sequence, stepNumber, totalSteps } from '../../data/sequence';
-import { sectionById } from '../../data/sections';
-import { articlePath, otherGuides } from '../../lib/articles';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import ArticleCard from '../../../components/ArticleCard.astro';
+import SequenceRail from '../../../components/SequenceRail.astro';
+import { activeLocales, localePath, type Locale } from '../../../i18n/config';
+import { useTranslations } from '../../../i18n/ui';
+import { sequence, stepNumber, totalSteps } from '../../../data/sequence';
+import { otherGuidesSlug, sectionById } from '../../../data/sections';
+import { otherGuides } from '../../../lib/articles';
 
 export function getStaticPaths() {
   return activeLocales.map((lang) => ({ params: { lang } }));
@@ -32,7 +32,18 @@ const others = await otherGuides(locale);
   wide
 >
   <div class="wrap wrap--wide">
-    <h1>{section.label}</h1>
+    {/* The guides outside the nine steps live on their own sub-page; the
+        button sits beside the title and wraps under it on a narrow screen. */}
+    <div class="pocetok-heading">
+      <h1>{section.label}</h1>
+      {
+        others.length > 0 && (
+          <a class="btn btn--secondary" href={localePath(locale, section.slug, otherGuidesSlug)}>
+            {t('pocetok.other')} →
+          </a>
+        )
+      }
+    </div>
     <p class="intro">{t('pocetok.intro')}</p>
 
     <SequenceRail />
@@ -59,7 +70,6 @@ const others = await otherGuides(locale);
                       title={step.title}
                       description={step.description}
                       badge={`${stepNumber(step)} / ${totalSteps}`}
-                      meta={categoryMeta[step.category].label}
                       current={stepNumber(step) === 1}
                     />
                   </li>
@@ -79,26 +89,6 @@ const others = await otherGuides(locale);
       )
     }
 
-    {
-      others.length > 0 && (
-        <>
-          <h2 class="other">{t('pocetok.other')}</h2>
-          <ul class="card-grid">
-            {others.map((article) => (
-              <li>
-                <ArticleCard
-                  href={localePath(locale, articlePath(article))}
-                  title={article.data.title}
-                  description={article.data.description}
-                  image={article.data.image}
-                  imageAlt={article.data.imageAlt}
-                />
-              </li>
-            ))}
-          </ul>
-        </>
-      )
-    }
   </div>
 </BaseLayout>
 
@@ -149,10 +139,19 @@ const others = await otherGuides(locale);
     display: inline;
   }
 
-  /* Separates the off-sequence guides from the nine steps without a card:
-     the steps above are numbered, these are not. */
-  .other {
-    font-size: 1.05rem;
-    margin-block: var(--space-5) var(--space-1);
+  .pocetok-heading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2) var(--space-3);
+  }
+
+  .pocetok-heading h1 {
+    margin-block-end: 0;
+  }
+
+  .pocetok-heading + .intro {
+    margin-block-start: var(--space-3);
   }
 </style>

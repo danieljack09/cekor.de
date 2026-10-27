@@ -5,8 +5,10 @@ import SummaryBox from '../components/SummaryBox.astro';
 import SourceLine from '../components/SourceLine.astro';
 import NextStep from '../components/NextStep.astro';
 import NextStepPill from '../components/NextStepPill.astro';
+import ArticleImage from '../components/ArticleImage.astro';
 import { defaultLocale, intlLocale, type Locale } from '../i18n/config';
 import { sectionOfArticle } from '../data/sections';
+import { imageCreditText } from '../lib/articles';
 import type { CollectionEntry } from 'astro:content';
 
 interface Props {
@@ -49,6 +51,17 @@ const newsDate =
     </div>
 
     <SummaryBox summary={summary} locale={locale} />
+
+    {
+      entry.data.image && (
+        <ArticleImage
+          image={entry.data.image}
+          alt={entry.data.imageAlt ?? ''}
+          credit={imageCreditText(locale, entry.data)}
+          source={entry.data.imageSource}
+        />
+      )
+    }
 
     <div class="prose">
       <slot />

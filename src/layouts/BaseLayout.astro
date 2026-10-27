@@ -99,21 +99,14 @@ const alternates = activeLocales.map((code) => ({
         no reflow. Only the faces used above the fold. */}
     <link
       rel="preload"
-      href="/fonts/source-serif-4-cyrillic-400-normal.woff2"
+      href="/fonts/source-sans-3-cyrillic-400-normal.woff2"
       as="font"
       type="font/woff2"
       crossorigin
     />
     <link
       rel="preload"
-      href="/fonts/ibm-plex-sans-cyrillic-600-normal.woff2"
-      as="font"
-      type="font/woff2"
-      crossorigin
-    />
-    <link
-      rel="preload"
-      href="/fonts/ibm-plex-sans-cyrillic-400-normal.woff2"
+      href="/fonts/source-sans-3-cyrillic-600-normal.woff2"
       as="font"
       type="font/woff2"
       crossorigin
@@ -126,7 +119,8 @@ const alternates = activeLocales.map((code) => ({
     <meta property="og:locale" content={ogLocale[locale]} />
     <meta property="og:url" content={canonical.href} />
 
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    {/* ?v= busts the browser's favicon cache: bump it when the icon changes. */}
+    <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml" />
     <link rel="sitemap" href="/sitemap-index.xml" />
   </head>
 

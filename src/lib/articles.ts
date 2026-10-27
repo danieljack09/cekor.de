@@ -2,6 +2,7 @@ import { getCollection, type CollectionEntry } from 'astro:content';
 import { intlLocale, localePath, type Locale } from '../i18n/config';
 import { sectionOfArticle } from '../data/sections';
 import type { HeroSlide } from '../components/HeroSlider.astro';
+import { useTranslations } from '../i18n/ui';
 
 /** How many slides HeroSlider shows. Its CSS handles at most 5. */
 export const HERO_SLIDES = 5;
@@ -14,6 +15,15 @@ export function articlePath(article: Article): string {
 }
 
 /** News in one locale, newest first. */
+/**
+ * The grey line under an article's image: "Слика: Syced / Wikimedia Commons, CC0".
+ * One place, so the card, the slider and the source footer always say the same.
+ */
+export function imageCreditText(locale: Locale, data: Article['data']): string | undefined {
+  if (!data.image || !data.imageCredit) return undefined;
+  return `${useTranslations(locale)('article.image')}: ${data.imageCredit}, ${data.imageLicense}`;
+}
+
 export async function newsArticles(locale: Locale): Promise<Article[]> {
   return (await getCollection('articles'))
     .filter((a) => a.id.startsWith(`${locale}/`) && sectionOfArticle(a.id) === 'novosti')

@@ -19,14 +19,14 @@ const outDir = path.join(root, 'public', 'fonts');
 
 // [fontsource package id, subset, weight, style]
 const wanted = [
-  ['source-serif-4', 'cyrillic', 400, 'normal'],
-  ['source-serif-4', 'cyrillic', 400, 'italic'],
-  ['source-serif-4', 'cyrillic', 700, 'normal'],
-  ['source-serif-4', 'latin', 400, 'normal'],
-  ['source-serif-4', 'latin', 400, 'italic'],
-  ['source-serif-4', 'latin', 700, 'normal'],
-  ['ibm-plex-sans', 'cyrillic', 400, 'normal'],
-  ['ibm-plex-sans', 'cyrillic', 600, 'normal'],
+  ['source-sans-3', 'cyrillic', 400, 'normal'],
+  ['source-sans-3', 'cyrillic', 400, 'italic'],
+  ['source-sans-3', 'cyrillic', 600, 'normal'],
+  ['source-sans-3', 'cyrillic', 700, 'normal'],
+  ['source-sans-3', 'latin', 400, 'normal'],
+  ['source-sans-3', 'latin', 400, 'italic'],
+  ['source-sans-3', 'latin', 600, 'normal'],
+  ['source-sans-3', 'latin', 700, 'normal'],
 ];
 
 await mkdir(outDir, { recursive: true });

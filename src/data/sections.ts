@@ -66,6 +66,13 @@ export const reservedSlugs: string[] = [
   ...Object.values(categoryMeta).map((m) => m.slug),
 ];
 
+/**
+ * Sub-page of Почеток во Германија that lists the guides outside the nine
+ * steps: /<locale>/pocetok-vo-germanija/drugi-vodici/. The guides themselves
+ * keep their own URLs (/<locale>/<slug>/).
+ */
+export const otherGuidesSlug = 'drugi-vodici';
+
 /** News articles live in src/content/articles/<locale>/novosti/. */
 export const newsFolder = 'novosti';
 

@@ -10,7 +10,7 @@ import { defaultLocale, type Locale } from './config';
 
 const ui = {
   mk: {
-    // The wordmark. Live text in IBM Plex Sans, never an image.
+    // The wordmark. Live text in Source Sans 3, never an image.
     'site.name': 'Чекор',
     'site.tagline': 'Германија, чекор по чекор',
     'site.description':
@@ -22,6 +22,7 @@ const ui = {
     'article.summary': 'На кратко',
     'article.checked': 'Последна проверка',
     'article.sources': 'Извори',
+    'article.image': 'Слика',
     'article.step': 'Чекор {n} од {total}',
     'article.progress': 'Позиција во деветте чекори',
     'article.next': 'Следен чекор',
@@ -38,6 +39,8 @@ const ui = {
 
     // Почеток во Германија: guides that are not one of the nine steps.
     'pocetok.other': 'Други водичи',
+    'pocetok.otherIntro': 'Водичи за теми надвор од деветте чекори: работа, документи и пари.',
+    'pocetok.otherCount': 'Водичи: {n}',
     'pocetok.all': 'Сите чекори',
     'pocetok.intro':
       'Преселбата во Германија значи да се помине низ неколку службени чекори, по одреден ред. Првиот е пријавата на адреса (Anmeldung) — без неа не можеш да отвориш банкарска сметка, да се осигураш или да добиеш даночен број. Оваа страница те води низ сите девет чекори, еден по еден, со линк до официјален извор за секој.',

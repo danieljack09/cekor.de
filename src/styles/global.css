@@ -10,85 +10,87 @@
 
 /* --------------------------------------------------------------------------
    Fonts
-   Self-hosted subsets (Cyrillic, plus Latin for the body font), copied out of @fontsource by
+   Self-hosted subsets (Cyrillic and Latin), copied out of @fontsource by
    scripts/sync-fonts.mjs. Never the Google Fonts CDN.
    The unicode-range keeps these files from being fetched for Latin-only text
    (slugs, German source names) unless Cyrillic is actually on the page.
    -------------------------------------------------------------------------- */
 
+/* One typeface for everything: Source Sans 3. Chosen because it carries the
+   Macedonian locl forms (MKD) for the italic г д п т that the site depends
+   on - checked in the font's GSUB table, not assumed. Inter, Manrope, Golos,
+   Onest and IBM Plex Sans have no MKD forms. Cyrillic and Latin subsets for
+   every face, so German words never fall back to a system font mid-title. */
 @font-face {
-  font-family: 'Source Serif 4';
+  font-family: 'Source Sans 3';
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url('/fonts/source-serif-4-cyrillic-400-normal.woff2') format('woff2');
+  src: url('/fonts/source-sans-3-cyrillic-400-normal.woff2') format('woff2');
   unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
 }
 
 @font-face {
-  font-family: 'Source Serif 4';
+  font-family: 'Source Sans 3';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/source-sans-3-latin-400-normal.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Source Sans 3';
   font-style: italic;
   font-weight: 400;
   font-display: swap;
-  src: url('/fonts/source-serif-4-cyrillic-400-italic.woff2') format('woff2');
+  src: url('/fonts/source-sans-3-cyrillic-400-italic.woff2') format('woff2');
   unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
 }
 
 @font-face {
-  font-family: 'Source Serif 4';
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url('/fonts/source-serif-4-cyrillic-700-normal.woff2') format('woff2');
-  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
-}
-
-/* Latin subset of the body font, for the German terms in running text
-   (Anmeldung, Bürgeramt) - otherwise they fall back to Georgia mid-sentence.
-   Fetched only when a page actually has Latin text, which nearly all do. */
-@font-face {
-  font-family: 'Source Serif 4';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url('/fonts/source-serif-4-latin-400-normal.woff2') format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-
-@font-face {
-  font-family: 'Source Serif 4';
+  font-family: 'Source Sans 3';
   font-style: italic;
   font-weight: 400;
   font-display: swap;
-  src: url('/fonts/source-serif-4-latin-400-italic.woff2') format('woff2');
+  src: url('/fonts/source-sans-3-latin-400-italic.woff2') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
 @font-face {
-  font-family: 'Source Serif 4';
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url('/fonts/source-serif-4-latin-700-normal.woff2') format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-
-@font-face {
-  font-family: 'IBM Plex Sans';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url('/fonts/ibm-plex-sans-cyrillic-400-normal.woff2') format('woff2');
-  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
-}
-
-@font-face {
-  font-family: 'IBM Plex Sans';
+  font-family: 'Source Sans 3';
   font-style: normal;
   font-weight: 600;
   font-display: swap;
-  src: url('/fonts/ibm-plex-sans-cyrillic-600-normal.woff2') format('woff2');
+  src: url('/fonts/source-sans-3-cyrillic-600-normal.woff2') format('woff2');
   unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+
+@font-face {
+  font-family: 'Source Sans 3';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/source-sans-3-latin-600-normal.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Source Sans 3';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/source-sans-3-cyrillic-700-normal.woff2') format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+
+@font-face {
+  font-family: 'Source Sans 3';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/source-sans-3-latin-700-normal.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
 /* --------------------------------------------------------------------------
@@ -114,8 +116,8 @@
   --ink-quiet: #51606d;
   --rule: var(--green-pale);
 
-  --font-body: 'Source Serif 4', Georgia, 'Times New Roman', serif;
-  --font-ui: 'IBM Plex Sans', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-body: 'Source Sans 3', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-ui: var(--font-body);
 
   /* Content column. A fixed length, never a ch value: ch is font-relative, so
      the same .wrap computed a different width inside the footer, which sets its
@@ -147,6 +149,9 @@
      inline asides. Never applied to SequenceStrip, focus rings, hairline
      rules or the skip-link - those stay square. */
   --radius-callout: 10px;
+  /* Image cards (news, Други водичи): a little rounder than --radius, so a
+     photo card reads as one soft block. */
+  --radius-card: 8px;
   /* One soft elevation, derived from --ink at low opacity - not a new hue. */
   --shadow: 0 2px 8px rgba(22, 33, 28, 0.08);
   --shadow-hover: 0 4px 14px rgba(22, 33, 28, 0.14);
@@ -178,8 +183,10 @@ body {
   background: var(--paper);
   color: var(--ink);
   font-family: var(--font-body);
-  font-size: 17px;
-  line-height: 1.75;
+  /* Source Sans has a smaller x-height than the old serif: one px up keeps
+     the same reading size. */
+  font-size: 18px;
+  line-height: 1.7;
 
   /* CRITICAL: with lang="mk" on <html>, "locl" selects the Macedonian
      italic forms of г д п т instead of the Russian defaults. Inherited by
@@ -198,7 +205,7 @@ body {
    this site is read by people on cheap phones who are not confident readers. */
 @media (min-width: 640px) {
   body {
-    font-size: 18px;
+    font-size: 19px;
   }
 }
 
@@ -241,6 +248,10 @@ video {
    Headings and text
    -------------------------------------------------------------------------- */
 
+/* Headings in ink, not blue: blue is for what you can click (links,
+   buttons) and for structure (header, "На кратко"). A blue heading reads
+   as a link. Large sizes get slightly tighter tracking and leading, which
+   is what makes a heading look set rather than typed. */
 h1,
 h2,
 h3,
@@ -248,17 +259,44 @@ h4 {
   font-family: var(--font-ui);
   font-weight: 600;
   line-height: 1.25;
-  color: var(--green);
+  color: var(--ink);
   text-wrap: balance;
 }
 
 h1 {
-  font-size: 30px;
+  font-size: 34px;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
   margin-block-end: var(--space-3);
+}
+
+/* A short blue rule above every page title: the one accent that says
+   "this is where the page starts". Not on the landing hero, which has its
+   own layout. Decoration only, so it is a pseudo-element, not markup. */
+/* The rule in the German flag colours, as three equal bands (Daniel's call,
+   2026-10-27). The flag colours appear only here, as a thin decoration -
+   never in text, where gold fails contrast and red belongs to --alarm. */
+h1:not(.hero__headline)::before {
+  content: '';
+  display: block;
+  width: 48px;
+  height: 4px;
+  border-radius: 2px;
+  background: linear-gradient(
+    to right,
+    #000000 0 33.333%,
+    #dd0000 33.333% 66.666%,
+    #ffce00 66.666% 100%
+  );
+  margin-block-end: var(--space-2);
 }
 
 h2 {
   font-size: 22px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
   /* A section break should read as one, without a rule to say so. */
   margin-block: var(--space-5) var(--space-2);
 }
@@ -272,7 +310,7 @@ h3 {
    intended computed values, not a multiple of whatever the root size is. */
 @media (min-width: 640px) {
   h1 {
-    font-size: 34px;
+    font-size: 40px;
   }
 
   h2 {
@@ -359,11 +397,6 @@ a:hover {
   outline-offset: 2px;
 }
 
-/* On the green header the ochre outline has too little contrast. */
-.site-header :focus-visible {
-  outline-color: var(--paper);
-}
-
 .skip-link {
   position: absolute;
   inset-inline-start: var(--gutter);
@@ -388,21 +421,35 @@ a:hover {
    Header
    -------------------------------------------------------------------------- */
 
+/* A light header (Daniel's call, 2026-10-27): the page's own --paper,
+   slightly see-through and blurred so content scrolling under the sticky bar
+   still shows. Dark wordmark and nav; blue is spent only on the CTA and the
+   active section's underline, so it marks what matters. A hairline at the
+   foot, and a soft shadow that fades in once the page scrolls (pure CSS,
+   scroll-driven; browsers without it just keep the hairline). */
 .site-header {
-  /* Slightly transparent + blurred rather than a flat solid fill, so
-     content scrolling underneath a sticky header still shows through. */
-  background: color-mix(in srgb, var(--green) 94%, transparent);
+  background: color-mix(in srgb, var(--paper) 92%, transparent);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  color: var(--paper);
-  /* A thin brand flourish at the very foot of the header, echoing the
-     sequence-rail motif in miniature - plus a soft shadow, so the edge into
-     the page reads as depth rather than a hard flat cutoff. */
-  border-block-end: var(--border-accent) solid var(--ochre);
-  box-shadow: var(--shadow);
+  color: var(--ink);
+  border-block-end: 1px solid var(--rule);
   position: sticky;
   inset-block-start: 0;
   z-index: 20;
+}
+
+@supports (animation-timeline: scroll()) {
+  .site-header {
+    animation: header-shadow linear both;
+    animation-timeline: scroll();
+    animation-range: 0 80px;
+  }
+}
+
+@keyframes header-shadow {
+  to {
+    box-shadow: var(--shadow);
+  }
 }
 
 /* Single row: wordmark, nav, CTA - like rakurs.mk's logo/nav/button bar.
@@ -422,12 +469,12 @@ a:hover {
 /* The wordmark. Live text, never an image file. */
 .site-header__name {
   font-family: var(--font-ui);
-  font-weight: 600;
   font-size: 1.375rem;
   /* Slightly tight: a five-letter Cyrillic wordmark reads as one shape. */
   letter-spacing: -0.005em;
   line-height: 1.2;
-  color: var(--paper);
+  color: var(--ink);
+  font-weight: 700;
   text-decoration: none;
   /* Never wraps mid-word if the row is tight. */
   flex: 0 0 auto;
@@ -476,9 +523,8 @@ a:hover {
   font-weight: 600;
   font-size: 15px;
   line-height: 1.3;
-  /* --paper at reduced opacity by default: full contrast is reserved for
-     hover/active, so the current section still reads as the emphasised one. */
-  color: rgba(247, 249, 251, 0.82);
+  /* Quiet by default; full ink on hover and for the current section. */
+  color: var(--ink-quiet);
   text-decoration: none;
   border-radius: var(--radius);
   /* Transparent on every link, so marking one active shifts nothing. */
@@ -492,14 +538,74 @@ a:hover {
 }
 
 .cat-nav__link:hover {
-  color: var(--paper);
-  background: rgba(247, 249, 251, 0.12);
+  color: var(--ink);
+  background: var(--green-pale);
 }
 
 .cat-nav__link.is-active {
-  color: var(--paper);
-  background: rgba(247, 249, 251, 0.12);
-  border-block-end-color: var(--ochre);
+  color: var(--ink);
+  border-block-end-color: var(--green);
+}
+
+/* Phone and small tablet: two compact rows instead of three-plus. Row 1 is the wordmark with
+   the CTA beside it; row 2 is the three sections on one line, spread across
+   the width. Still no hamburger: every section stays one tap away. */
+@media (max-width: 799px) {
+  .site-header__bar {
+    padding-block: var(--space-2) 0;
+    row-gap: var(--space-1);
+    min-height: 0;
+  }
+
+  .site-header__name {
+    font-size: 1.25rem;
+  }
+
+  .site-header .btn--cta {
+    order: 2;
+    font-size: 0.875rem;
+    padding: 6px var(--space-2);
+  }
+
+  .cat-nav {
+    order: 3;
+    flex-basis: 100%;
+  }
+
+  .cat-nav ul {
+    justify-content: space-between;
+    gap: 0;
+  }
+
+  .cat-nav__link {
+    font-size: 14px;
+    padding-inline: var(--space-1);
+    padding-block: var(--space-2) 10px;
+    border-radius: 0;
+  }
+
+  /* The underline sits on the header's own bottom edge, like a tab. */
+  .cat-nav__link:hover {
+    background: transparent;
+  }
+}
+
+/* Wider phones and small tablets: spread-to-the-edges looks scattered once
+   there is room, so the sections sit left with an even gap instead. */
+@media (min-width: 480px) and (max-width: 799px) {
+  .cat-nav ul {
+    justify-content: flex-start;
+    gap: var(--space-4);
+  }
+}
+
+/* The smallest phones (320px): a touch smaller so the three sections still
+   fit on one line. */
+@media (max-width: 359px) {
+  .cat-nav__link {
+    font-size: 13px;
+    padding-inline: 2px;
+  }
 }
 
 /* --------------------------------------------------------------------------
@@ -592,9 +698,28 @@ a:hover {
 }
 
 /* Optional card image: bleeds to the card's edges above the text. A fixed
-   16:9 box, so the layout never jumps while a lazy image loads. */
+   16:9 box, so the layout never jumps while a lazy image loads.
+   A card with a photo drops the left accent for an even 1px border all
+   round, softer corners and a shadow that deepens as it lifts on hover. */
 .card--image {
   overflow: hidden;
+  border: 1px solid var(--green-pale);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.card--image:hover {
+  border-color: var(--green);
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-3px);
+}
+
+.card--image:focus-visible {
+  transform: translateY(-3px);
 }
 
 .card__image {
@@ -722,9 +847,10 @@ a:hover {
 /* The header CTA ("Започни тука"). Inverted fill - --paper on the --green
    bar - so it pops the way rakurs.mk's red button pops against its dark
    header, without a 7th hue. */
+/* The one filled thing in the light header. */
 .btn--cta {
-  background: var(--paper);
-  color: var(--green);
+  background: var(--green);
+  color: var(--paper);
   font-size: 0.9375rem;
   padding: var(--space-1) var(--space-3);
   flex: 0 0 auto;
@@ -736,7 +862,8 @@ a:hover {
 }
 
 .btn--cta:hover {
-  background: var(--green-pale);
+  /* Same hue, a shade deeper - derived, not a new colour. */
+  background: color-mix(in srgb, var(--green) 85%, var(--ink));
   box-shadow: var(--shadow-hover);
   transform: translateY(-1px);
 }
@@ -797,7 +924,7 @@ a:hover {
 }
 
 /* --------------------------------------------------------------------------
-   Tables - IBM Plex Sans, square, hairline rules
+   Tables - square, hairline rules
    -------------------------------------------------------------------------- */
 
 .prose table {
@@ -835,6 +962,11 @@ a:hover {
    -------------------------------------------------------------------------- */
 
 @media (prefers-reduced-motion: reduce) {
+  .card--image:hover,
+  .card--image:focus-visible {
+    transform: none;
+  }
+
   *,
   *::before,
   *::after {

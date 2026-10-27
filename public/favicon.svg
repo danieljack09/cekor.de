@@ -1,16 +1,16 @@
 <!--
-  A single Cyrillic Ч in --paper on a --green square.
+  A single Cyrillic Ч in --paper on a rounded --green tile.
 
   The Ч is a path, not <text>: favicons render outside the document, with no
-  access to the self-hosted IBM Plex Sans, so <text> would fall back to
+  access to the self-hosted Source Sans 3, so <text> would fall back to
   whatever sans-serif the OS has. The path keeps the mark identical
-  everywhere. This is the only image file in the project - the wordmark
-  itself is live text (see BaseLayout.astro).
+  everywhere.
 
-  Proportions follow the wordmark: 4-unit stems, an open counter, and the
-  right stem descending past the bar.
+  Drawn to read at 16px: heavy 4-unit stems, the left stem curving into the
+  bar (a real Ч, not an angular "4"), the right stem running the full height.
+  Rounded corners (rx 7) to match the softer cards and buttons.
 -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Чекор">
-  <rect width="32" height="32" fill="#1D70B8" />
-  <path d="M8 7 h4 v7 h8 V7 h4 v18 h-4 v-7 H8 Z" fill="#F7F9FB" />
+  <rect width="32" height="32" rx="7" fill="#1D70B8" />
+  <path d="M8.5 7 h4 v6 a3.5 3.5 0 0 0 3.5 3.5 h3.5 V7 h4 v18 h-4 v-4.5 h-3.5 a7.5 7.5 0 0 1 -7.5 -7.5 Z" fill="#F7F9FB" />
 </svg>

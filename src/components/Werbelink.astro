@@ -1,0 +1,56 @@
+---
+// An affiliate link, always with its "Werbelink" marker right beside it.
+// German law wants advertising recognisable as advertising, and the site's
+// rule is that the reader always sees where Чекор earns money: so the marker
+// is part of the link itself, never a footnote and never in the footer.
+//
+// Usage in an article (which then needs `affiliate: true` - the build checks
+// it, see src/lib/validate-articles.ts):
+//
+//   import Werbelink from '../../../components/Werbelink.astro';
+//   <Werbelink href="https://...">Starlink</Werbelink>
+//
+// rel="sponsored" is what Google asks for on paid links; "nofollow" passes no
+// ranking along; "noopener" because the link opens a new tab.
+
+interface Props {
+  /** The affiliate URL. https only. */
+  href: string;
+}
+
+const { href } = Astro.props;
+
+if (!href.startsWith('https://')) {
+  throw new Error(`Werbelink href must be https: ${href}`);
+}
+---
+
+<span class="werbelink"
+  ><a href={href} target="_blank" rel="sponsored nofollow noopener external"><slot /></a
+  ><span class="werbelink__badge" lang="de">Werbelink</span></span
+>
+
+<style>
+  .werbelink {
+    /* Link and badge never separate across a line break. */
+    white-space: nowrap;
+  }
+
+  .werbelink a {
+    white-space: normal;
+  }
+
+  .werbelink__badge {
+    display: inline-block;
+    margin-inline-start: 0.35em;
+    padding: 0 0.4em;
+    font-family: var(--font-ui);
+    font-size: 0.75em;
+    font-weight: 600;
+    line-height: 1.6;
+    vertical-align: 0.1em;
+    color: var(--ink-quiet);
+    background: var(--green-pale);
+    border-radius: var(--radius);
+  }
+</style>

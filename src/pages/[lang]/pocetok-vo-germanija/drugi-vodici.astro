@@ -1,0 +1,63 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import ArticleCard from '../../../components/ArticleCard.astro';
+import { activeLocales, localePath, type Locale } from '../../../i18n/config';
+import { useTranslations } from '../../../i18n/ui';
+import { sectionById } from '../../../data/sections';
+import { articlePath, otherGuides } from '../../../lib/articles';
+
+// Други водичи: every guide that is not one of the nine steps. A sub-page of
+// Почеток во Германија, so the header marks Почеток as the active section.
+
+export function getStaticPaths() {
+  return activeLocales.map((lang) => ({ params: { lang } }));
+}
+
+const locale = Astro.params.lang as Locale;
+const t = useTranslations(locale);
+const parent = sectionById('pocetok');
+const guides = await otherGuides(locale);
+---
+
+<BaseLayout
+  title={t('pocetok.other')}
+  description={t('pocetok.otherIntro')}
+  locale={locale}
+  activeSection="pocetok"
+  wide
+>
+  <div class="wrap wrap--wide">
+    <p class="back">
+      <a href={localePath(locale, parent.slug)}>← {parent.label}</a>
+    </p>
+    <h1>{t('pocetok.other')}</h1>
+
+    {
+      guides.length > 0 ? (
+        <ul class="card-grid card-grid--3up">
+          {guides.map((article) => (
+            <li>
+              <ArticleCard
+                href={localePath(locale, articlePath(article))}
+                title={article.data.title}
+                description={article.data.description}
+                image={article.data.image}
+                imageAlt={article.data.imageAlt}
+              />
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p>{t('home.empty')}</p>
+      )
+    }
+  </div>
+</BaseLayout>
+
+<style>
+  .back {
+    font-family: var(--font-ui);
+    font-size: 0.9375rem;
+    margin-block-end: var(--space-2);
+  }
+</style>

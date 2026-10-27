@@ -1,0 +1,72 @@
+---
+import type { ImageMetadata } from 'astro';
+import { Image } from 'astro:assets';
+
+// The article's own image, shown once in the body under the "На кратко" box,
+// so the answer still comes first. The credit sits directly under it and
+// links to the page the image came from - the reader can check it.
+
+interface Props {
+  image: ImageMetadata;
+  alt: string;
+  /** "Слика: author / source, licence", from imageCreditText(). */
+  credit?: string;
+  /** The page the image was taken from. */
+  source?: string;
+}
+
+const { image, alt, credit, source } = Astro.props;
+---
+
+<figure class="article-image">
+  <Image
+    class="article-image__img"
+    src={image}
+    alt={alt}
+    widths={[360, 640, 960]}
+    sizes="(max-width: 640px) 100vw, 640px"
+    format="webp"
+    quality={60}
+    loading="lazy"
+    decoding="async"
+  />
+  {
+    credit && (
+      <figcaption class="article-image__credit">
+        {source ? (
+          <a href={source} target="_blank" rel="noopener external">
+            {credit}
+          </a>
+        ) : (
+          credit
+        )}
+      </figcaption>
+    )
+  }
+</figure>
+
+<style>
+  .article-image {
+    margin: var(--space-4) 0;
+  }
+
+  .article-image__img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: var(--radius);
+    background: var(--green-pale);
+  }
+
+  .article-image__credit {
+    font-family: var(--font-ui);
+    font-size: 0.8125rem;
+    line-height: 1.4;
+    color: var(--ink-quiet);
+    margin-block-start: var(--space-1);
+  }
+
+  .article-image__credit a {
+    color: inherit;
+  }
+</style>

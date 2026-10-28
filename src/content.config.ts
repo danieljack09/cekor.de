@@ -75,6 +75,15 @@ const articles = defineCollection({
     affiliate: z.boolean().default(false),
 
     /**
+     * Up to two related articles, shown as cards under this one. Each is a
+     * slug in the same locale: "starlink-vo-germanija", or
+     * "novosti/kindergeld-2027" for news. Checked in
+     * src/lib/validate-articles.ts: the target must exist and be published,
+     * so a related card is never a dead link.
+     */
+    related: z.array(z.string().min(1)).max(2, 'at most two related articles').default([]),
+
+    /**
      * Optional card image, shown on article cards and the landing-page
      * slider - never in the article body. Lives in
      * src/assets/articles/<slug>.jpg so Astro compresses it at build time;

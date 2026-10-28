@@ -6,6 +6,7 @@ import SourceLine from '../components/SourceLine.astro';
 import NextStep from '../components/NextStep.astro';
 import NextStepPill from '../components/NextStepPill.astro';
 import ArticleImage from '../components/ArticleImage.astro';
+import RelatedArticles from '../components/RelatedArticles.astro';
 import { defaultLocale, intlLocale, type Locale } from '../i18n/config';
 import { sectionOfArticle } from '../data/sections';
 import { imageCreditText } from '../lib/articles';
@@ -72,6 +73,8 @@ const newsDate =
     <SourceLine sources={sources} updated={updated} locale={locale} />
 
     {sequenceStep !== null && <NextStep step={sequenceStep} locale={locale} />}
+
+    <RelatedArticles slugs={entry.data.related} locale={locale} />
   </article>
 </BaseLayout>
 

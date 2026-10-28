@@ -29,6 +29,7 @@ const ui = {
     'article.done': 'Готово',
     'article.sequenceDone': 'Готово — го помина целиот процес.',
     'article.backToSequence': 'Назад кон Почеток во Германија',
+    'article.related': 'Поврзани статии',
 
     'callout.важно': 'Важно',
     'callout.внимание': 'Внимание',

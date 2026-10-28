@@ -151,6 +151,7 @@ The folder decides the section; there is no `section` field.
 | `date` | date | null | **news: required**, the day the news is about. Guides: must be absent |
 | `category` | string | null | guides off the sequence only, as a label. Steps and news: absent |
 | `affiliate` | boolean | default `false` |
+| `related` | string[] | optional, **at most 2**. Article paths as `articlePath()` writes them: `starlink-vo-germanija`, `novosti/kindergeld-2027`. Shown as "Поврзани статии" cards (`RelatedArticles.astro`) under the article, after `NextStep`. Editorial, never computed. Do not repeat the step `NextStep` already links |
 | `image` / `imageAlt` | image / string | optional card image in `src/assets/articles/<slug>.jpg`; `imageAlt` required with it |
 | `imageCredit` / `imageLicense` / `imageSource` | string / string / https url | who made the image, its licence, the page it came from. All three together. Shown in grey under the image in the article body, linked to the source. Not shown on cards. Use the source's exact credit wording |
 | `imageLicenseUrl` | https url | the licence deed. **Required for any licence that asks for attribution** (CC BY, CC BY-SA): those licences oblige us to link the licence next to the credit. The licence name under the image becomes that link. CC0 and public domain do not need it |
@@ -167,6 +168,7 @@ In `src/content.config.ts` (zod):
 - `sources` requires at least one entry
 - every source `url` must be `https`
 - `sequenceStep` is 1–9 or null
+- `related` has at most 2 entries
 
 In `src/lib/validate-articles.ts` (needs the body or `sequence.ts`, so it
 cannot be zod). Called from `getStaticPaths()` in `[lang]/[...slug].astro`,
@@ -178,6 +180,9 @@ which runs on every build:
 - the slug must not be a reserved slug (section slugs + `dokumenti`, `pari`, `rabota`)
 - news needs `date`, and no `sequenceStep` or `category`; guides may not set `date`
 - nothing deeper than `<locale>/<slug>` or `<locale>/novosti/<slug>`
+- every `related` entry must be an existing article in the same locale, not
+  the article itself, listed once, and not an unpublished step — so a
+  related card can never be a dead link
 - the locale folder must be an active locale
 
 ## Technical rules
@@ -246,7 +251,7 @@ src/
   i18n/ui.ts                 all UI strings, per locale
   layouts/BaseLayout.astro   header, footer, preloads, SEO, analytics stub
   layouts/ArticleLayout.astro
-  components/                Callout, BarCompare, HeroSlider, SequenceStrip, SummaryBox, SourceLine, NextStep
+  components/                Callout, BarCompare, HeroSlider, SequenceStrip, SummaryBox, SourceLine, NextStep, RelatedArticles
   pages/[lang]/              every real URL carries a locale prefix
   pages/[lang]/index.astro   landing page, previews per section
   pages/[lang]/pocetok-vo-germanija/index.astro         the nine steps

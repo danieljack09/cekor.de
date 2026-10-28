@@ -1,6 +1,6 @@
 import { getCollection } from 'astro:content';
 import { activeLocales } from '../i18n/config';
-import { stepAt } from '../data/sequence';
+import { stepAt, stepBySlug } from '../data/sequence';
 import { newsFolder, reservedSlugs, sectionOfArticle } from '../data/sections';
 
 // Build-time checks that zod cannot express, because they need the article
@@ -99,6 +99,29 @@ export async function validateArticles(): Promise<void> {
             `src/data/sequence.ts, but this file's slug is "${slug}".`
         );
       }
+    }
+  }
+
+  // Related cards link other articles. Each target must exist in the same
+  // locale and be visible: no dead links anywhere on the site.
+  const ids = new Set(articles.map((a) => a.id));
+  for (const { id, data } of articles) {
+    const [locale] = id.split('/');
+    for (const slug of data.related) {
+      const target = `${locale}/${slug}`;
+      if (target === id) {
+        problems.push(`${id}: "related" lists the article itself.`);
+      } else if (!ids.has(target)) {
+        problems.push(`${id}: related article "${slug}" does not exist in ${locale}/.`);
+      } else {
+        const step = stepBySlug(slug);
+        if (step && !step.published) {
+          problems.push(`${id}: related article "${slug}" is an unpublished step.`);
+        }
+      }
+    }
+    if (new Set(data.related).size !== data.related.length) {
+      problems.push(`${id}: "related" lists the same article twice.`);
     }
   }
 

@@ -59,6 +59,8 @@ const newsDate =
           alt={entry.data.imageAlt ?? ''}
           credit={imageCreditText(locale, entry.data)}
           source={entry.data.imageSource}
+          license={entry.data.imageLicense}
+          licenseUrl={entry.data.imageLicenseUrl}
         />
       )
     }

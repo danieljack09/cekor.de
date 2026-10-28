@@ -95,6 +95,17 @@ const articles = defineCollection({
     /** The image's licence as the source states it: "CC0", "CC BY 4.0". */
     imageLicense: z.string().min(1).optional(),
 
+    /**
+     * The licence deed, linked from the licence name under the image.
+     * CC BY and CC BY-SA require a link to the licence, so a licence that
+     * asks for attribution needs this. CC0 and public domain do not.
+     */
+    imageLicenseUrl: z
+      .string()
+      .url()
+      .refine((u) => u.startsWith('https://'), { message: 'imageLicenseUrl must be https' })
+      .optional(),
+
     /** The page the image was taken from, linked under the sources. https. */
     imageSource: z
       .string()
@@ -109,6 +120,10 @@ const articles = defineCollection({
     .refine((data) => !data.imageCredit || (data.image && data.imageLicense && data.imageSource), {
       message: 'imageCredit needs image, imageLicense and imageSource',
       path: ['imageCredit'],
+    })
+    .refine((data) => !data.imageLicenseUrl || Boolean(data.imageLicense), {
+      message: 'imageLicenseUrl needs imageLicense',
+      path: ['imageLicenseUrl'],
     }),
 });
 

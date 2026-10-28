@@ -9,13 +9,20 @@ import { Image } from 'astro:assets';
 interface Props {
   image: ImageMetadata;
   alt: string;
-  /** "Слика: author / source, licence", from imageCreditText(). */
+  /** "Слика: author / source", from imageCreditText(). */
   credit?: string;
   /** The page the image was taken from. */
   source?: string;
+  /** The licence as the source names it: "CC0", "CC BY-SA 4.0". */
+  license?: string;
+  /**
+   * The licence deed. CC BY and CC BY-SA require a link to the licence
+   * next to the credit, so the licence name becomes a link when this is set.
+   */
+  licenseUrl?: string;
 }
 
-const { image, alt, credit, source } = Astro.props;
+const { image, alt, credit, source, license, licenseUrl } = Astro.props;
 ---
 
 <figure class="article-image">
@@ -40,6 +47,15 @@ const { image, alt, credit, source } = Astro.props;
         ) : (
           credit
         )}
+        {license && ', '}
+        {license &&
+          (licenseUrl ? (
+            <a href={licenseUrl} target="_blank" rel="noopener external license">
+              {license}
+            </a>
+          ) : (
+            license
+          ))}
       </figcaption>
     )
   }

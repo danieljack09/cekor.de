@@ -16,12 +16,14 @@ export function articlePath(article: Article): string {
 
 /** News in one locale, newest first. */
 /**
- * The grey line under an article's image: "Слика: Syced / Wikimedia Commons, CC0".
- * One place, so the card, the slider and the source footer always say the same.
+ * The first half of the grey line under an article's image:
+ * "Слика: Syced / Wikimedia Commons". The licence name follows it in
+ * ArticleImage, as its own link when the licence asks for one.
+ * One place, so every surface that shows a credit says the same.
  */
 export function imageCreditText(locale: Locale, data: Article['data']): string | undefined {
   if (!data.image || !data.imageCredit) return undefined;
-  return `${useTranslations(locale)('article.image')}: ${data.imageCredit}, ${data.imageLicense}`;
+  return `${useTranslations(locale)('article.image')}: ${data.imageCredit}`;
 }
 
 export async function newsArticles(locale: Locale): Promise<Article[]> {

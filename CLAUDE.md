@@ -153,6 +153,7 @@ The folder decides the section; there is no `section` field.
 | `affiliate` | boolean | default `false` |
 | `image` / `imageAlt` | image / string | optional card image in `src/assets/articles/<slug>.jpg`; `imageAlt` required with it |
 | `imageCredit` / `imageLicense` / `imageSource` | string / string / https url | who made the image, its licence, the page it came from. All three together. Shown in grey under the image in the article body, linked to the source. Not shown on cards. Use the source's exact credit wording |
+| `imageLicenseUrl` | https url | the licence deed. **Required for any licence that asks for attribution** (CC BY, CC BY-SA): those licences oblige us to link the licence next to the credit. The licence name under the image becomes that link. CC0 and public domain do not need it |
 
 Quote any frontmatter value containing `": "` — an unquoted YAML scalar cannot
 hold it, and the build fails with a bare "bad indentation" error that does not

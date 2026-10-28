@@ -116,6 +116,11 @@ slugs. An article using one fails the build.
   grey "Werbelink" badge glued to it (no line break between them),
   `rel="sponsored nofollow noopener"`, new tab, https only. Using it puts
   "Werbelink" in the body, so the build then demands `affiliate: true`.
+  For a big call to action, add `button`:
+  `<Werbelink href="https://…" button>Нарачај Starlink</Werbelink>` renders a
+  full-width `.btn--primary`-style button with the badge right beside it.
+  An article with an affiliate link also says so in one plain sentence near
+  the top.
 - **Never publish anything that reads as legal, tax or insurance advice.**
   Describe procedures and point to official sources.
 
@@ -367,9 +372,9 @@ above for anyone with that OS setting on.
   eRecht24 before launch** (links are in the page comments). Affiliate links
   make the site commercial, so § 5 DDG applies in full.
 - The Попусти section (discounted products, affiliate) is published and live
-  at `/mk/popusti/`, showing "Наскоро." The Werbelink component exists; no
-  real affiliate link is in yet. The planned first one is a Starlink referral
-  in `internet-vo-germanija.mdx`.
+  at `/mk/popusti/`, showing "Наскоро." The first real affiliate link is the
+  Starlink referral button in `internet-vo-germanija.mdx` (2026-10-28), so
+  Impressum and Datenschutz are now overdue.
 - No news articles yet: `/mk/novosti/` shows "Наскоро."
 - Open: may news cite news outlets, or only official sources? Until decided,
   the content rules above apply unchanged.

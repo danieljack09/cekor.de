@@ -10,25 +10,41 @@
 //   import Werbelink from '../../../components/Werbelink.astro';
 //   <Werbelink href="https://...">Starlink</Werbelink>
 //
+// `button` turns it into a big, full-width call to action (the .btn--primary
+// fill, larger and easy to hit on a phone). The badge still sits directly
+// beside it, outside the button, so it can't be missed or read as part of
+// the button label.
+//
+//   <Werbelink href="https://..." button>Нарачај Starlink</Werbelink>
+//
 // rel="sponsored" is what Google asks for on paid links; "nofollow" passes no
 // ranking along; "noopener" because the link opens a new tab.
 
 interface Props {
   /** The affiliate URL. https only. */
   href: string;
+  /** Render as a big call-to-action button instead of an inline link. */
+  button?: boolean;
 }
 
-const { href } = Astro.props;
+const { href, button = false } = Astro.props;
 
 if (!href.startsWith('https://')) {
   throw new Error(`Werbelink href must be https: ${href}`);
 }
 ---
 
-<span class="werbelink"
-  ><a href={href} target="_blank" rel="sponsored nofollow noopener external"><slot /></a
-  ><span class="werbelink__badge" lang="de">Werbelink</span></span
->
+{button ? (
+  <p class="werbelink werbelink--button"
+    ><a class="btn btn--primary" href={href} target="_blank" rel="sponsored nofollow noopener external"><slot /> <span aria-hidden="true">→</span></a
+    ><span class="werbelink__badge" lang="de">Werbelink</span></p
+  >
+) : (
+  <span class="werbelink"
+    ><a href={href} target="_blank" rel="sponsored nofollow noopener external"><slot /></a
+    ><span class="werbelink__badge" lang="de">Werbelink</span></span
+  >
+)}
 
 <style>
   .werbelink {
@@ -52,5 +68,57 @@ if (!href.startsWith('https://')) {
     color: var(--ink-quiet);
     background: var(--green-pale);
     border-radius: var(--radius);
+  }
+
+  .werbelink--button {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-block: var(--space-4);
+    white-space: normal;
+  }
+
+  .werbelink--button .btn {
+    flex: 1 1 auto;
+    min-height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4em;
+    font-size: 1.25rem;
+    font-weight: 700;
+    text-align: center;
+    padding: var(--space-3) var(--space-4);
+    transition:
+      background-color 0.15s ease,
+      box-shadow 0.15s ease,
+      transform 0.15s ease;
+  }
+
+  .werbelink--button .btn:hover {
+    /* Same derived shade as the header CTA - no new colour. */
+    background: color-mix(in srgb, var(--green) 85%, var(--ink));
+    transform: translateY(-1px);
+  }
+
+  .werbelink--button .btn:focus-visible {
+    outline: 3px solid var(--ink);
+    outline-offset: 3px;
+  }
+
+  .werbelink--button .werbelink__badge {
+    flex: 0 0 auto;
+    margin-inline-start: 0;
+    font-size: 0.875rem;
+    vertical-align: baseline;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .werbelink--button .btn {
+      transition: none;
+    }
+    .werbelink--button .btn:hover {
+      transform: none;
+    }
   }
 </style>

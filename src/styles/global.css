@@ -156,6 +156,76 @@
   --shadow: 0 2px 8px rgba(22, 33, 28, 0.08);
   --shadow-hover: 0 4px 14px rgba(22, 33, 28, 0.14);
   --shadow-rail: 0 1px 4px rgba(22, 33, 28, 0.1);
+
+  /* Two more layers above --paper, for full-bleed bands and raised cards
+     on the landing page that need real separation from the page background
+     (the slider panel, the hero band, the off-white steps band, the
+     stepper's detail card) - previously hardcoded #fff / #f1f5f9, which
+     never switched in dark mode. --surface-raised is the brighter layer
+     (closest to the page), --surface-alt the band tone used for banding. */
+  --surface-raised: #fff;
+  --surface-alt: #f1f5f9;
+
+  color-scheme: light dark;
+}
+
+/* --------------------------------------------------------------------------
+   Dark mode - same hues, inverted lightness. Not a new colour: see CLAUDE.md.
+   Defaults to the OS preference (prefers-color-scheme) as long as the reader
+   has never used the toggle - the moment they do, ThemeToggle.astro writes
+   data-theme to <html> and that attribute wins from then on, independent of
+   the OS setting. BaseLayout.astro's anti-flash script is what applies the
+   stored choice before first paint.
+   -------------------------------------------------------------------------- */
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --ink: #e8edf2;
+    --green: #5b9bd9;
+    --green-pale: #1e2b38;
+    --paper: #0f1620;
+    --ochre: #4fb3ba;
+    --alarm: #ff6b55;
+    --ink-quiet: #9fb0bf;
+    --rule: var(--green-pale);
+    --shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+    --shadow-hover: 0 4px 14px rgba(0, 0, 0, 0.6);
+    --shadow-rail: 0 1px 4px rgba(0, 0, 0, 0.5);
+    --surface-raised: #1b2531;
+    --surface-alt: #141c26;
+  }
+}
+
+:root[data-theme='dark'] {
+  --ink: #e8edf2;
+  --green: #5b9bd9;
+  --green-pale: #1e2b38;
+  --paper: #0f1620;
+  --ochre: #4fb3ba;
+  --alarm: #ff6b55;
+  --ink-quiet: #9fb0bf;
+  --rule: var(--green-pale);
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  --shadow-hover: 0 4px 14px rgba(0, 0, 0, 0.6);
+  --shadow-rail: 0 1px 4px rgba(0, 0, 0, 0.5);
+  --surface-raised: #1b2531;
+  --surface-alt: #141c26;
+}
+
+:root[data-theme='light'] {
+  --ink: #1a2733;
+  --green: #1d70b8;
+  --green-pale: #dce9f2;
+  --paper: #f7f9fb;
+  --ochre: #158187;
+  --alarm: #d4351c;
+  --ink-quiet: #51606d;
+  --rule: var(--green-pale);
+  --shadow: 0 2px 8px rgba(22, 33, 28, 0.08);
+  --shadow-hover: 0 4px 14px rgba(22, 33, 28, 0.14);
+  --shadow-rail: 0 1px 4px rgba(22, 33, 28, 0.1);
+  --surface-raised: #fff;
+  --surface-alt: #f1f5f9;
 }
 
 /* --------------------------------------------------------------------------
@@ -605,6 +675,51 @@ a:hover {
   .cat-nav__link {
     font-size: 13px;
     padding-inline: 2px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Theme toggle - icon button next to the header CTA. Quiet by default like
+   the section nav links, never a filled button: this isn't a primary action.
+   -------------------------------------------------------------------------- */
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  flex: 0 0 auto;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius);
+  color: var(--ink-quiet);
+  cursor: pointer;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.theme-toggle:hover {
+  color: var(--ink);
+  background: var(--green-pale);
+}
+
+.theme-toggle svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+/* Exactly one icon shows, driven by the attribute the toggle script sets on
+   <html> - no JS needed to swap the icon itself. */
+html:not([data-theme='dark']) .theme-toggle__moon,
+html[data-theme='dark'] .theme-toggle__sun {
+  display: none;
+}
+
+@media (max-width: 799px) {
+  .site-header .theme-toggle {
+    order: 2;
   }
 }
 

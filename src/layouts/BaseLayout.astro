@@ -12,6 +12,7 @@ import {
 import { useTranslations } from '../i18n/ui';
 import { publishedSections, type SectionId } from '../data/sections';
 import { nextPublishedAfter } from '../data/sequence';
+import ThemeToggle from '../components/ThemeToggle.astro';
 
 interface Props {
   /**
@@ -88,8 +89,27 @@ const alternates = activeLocales.map((code) => ({
     <title>{pageTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical.href} />
-    <meta name="color-scheme" content="light" />
-    <meta name="theme-color" content="#1D70B8" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#1D70B8" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0F1620" media="(prefers-color-scheme: dark)" />
+
+    {/* Anti-flash: applies a stored theme choice before first paint. The one
+        other deliberate JS exception on the site, besides the toggle's own
+        click handler in ThemeToggle.astro - see CLAUDE.md. Wrapped in
+        try/catch because localStorage can throw (Private Browsing, storage
+        blocked). If there's no stored choice, the attribute is left unset
+        entirely so the CSS prefers-color-scheme block in global.css keeps
+        driving the default and still follows a live OS theme change. */}
+    <script is:inline>
+      try {
+        var storedTheme = localStorage.getItem('cekor-theme');
+        if (storedTheme) {
+          document.documentElement.setAttribute('data-theme', storedTheme);
+        }
+      } catch (e) {
+        /* no-op */
+      }
+    </script>
     {noindex && <meta name="robots" content="noindex, follow" />}
 
     {alternates.map((alt) => <link rel="alternate" hreflang={alt.lang} href={alt.href} />)}
@@ -162,6 +182,8 @@ const alternates = activeLocales.map((code) => ({
             </a>
           )
         }
+
+        <ThemeToggle locale={locale} />
       </div>
     </header>
 

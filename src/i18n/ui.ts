@@ -19,6 +19,9 @@ const ui = {
     'nav.sections': 'Делови на сајтот',
     'nav.cta': 'Започни тука',
 
+    'theme.toLight': 'Светла тема',
+    'theme.toDark': 'Темна тема',
+
     'article.summary': 'На кратко',
     'article.checked': 'Последна проверка',
     'article.sources': 'Извори',

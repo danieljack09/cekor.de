@@ -188,9 +188,22 @@ which runs on every build:
 ## Technical rules
 
 - Astro, static output. Plain CSS with custom properties. No frameworks.
-- **The site ships zero JavaScript.** It works fully with JS disabled because
-  there is none — the menu is a `<details>`. Keep it that way; the only
-  permitted script is the commented Cloudflare Web Analytics beacon.
+- **The site ships zero JavaScript**, with one deliberate exception: the dark
+  mode toggle (Daniel's call, 2026-11-01). It works fully with JS disabled
+  because there is none — the menu is a `<details>`. Keep it that way for
+  everything else; the only other permitted script is the commented
+  Cloudflare Web Analytics beacon.
+  - `BaseLayout.astro` has an inline anti-flash `<script is:inline>` in
+    `<head>` that applies a *stored* theme choice to `data-theme` on `<html>`
+    before first paint. If nothing is stored, it leaves the attribute unset
+    so the `prefers-color-scheme` block in `global.css` keeps driving the
+    default, and the page still tracks a live OS theme change for anyone who
+    has never touched the toggle.
+  - `ThemeToggle.astro` has the only other script: a click handler that
+    flips `data-theme` and writes the choice to `localStorage`.
+  - Both `localStorage` calls are wrapped in `try/catch` — Private Browsing
+    or blocked storage must never throw, it should just not persist.
+  - No other script is added anywhere for any other feature.
 - Cyrillic content, Latin slugs (`/mk/vozacka-dozvola/`).
 - **`lang="mk"` on `<html>` and `font-feature-settings: 'locl'` on `body` must
   never be removed.** Without them the Cyrillic italics of г д п т fall back to
@@ -204,7 +217,9 @@ which runs on every build:
   page. Astro still requires that file to exist, so do not delete it.
 - hreflang is emitted for **active** locales only, plus `x-default`. Adding a
   locale to `activeLocales` expands it automatically.
-- No cookies, no local storage, no third-party requests, no consent banner.
+- No cookies, no third-party requests, no consent banner. The one exception
+  is `localStorage`, used only to remember the dark mode choice (see above) —
+  nothing else is stored, and it holds no personal data.
 
 ### New locale (/sr/, /sq/)
 
@@ -271,8 +286,14 @@ public/_headers              immutable caching for /fonts/ and /_astro/
 
 ## Design tokens
 
-Defined in `src/styles/global.css`. Light mode only. **Do not introduce a new
-colour.**
+Defined in `src/styles/global.css`. Light by default, following the reader's
+OS `prefers-color-scheme` until they use the header's dark mode toggle, which
+sets `data-theme` on `<html>` and overrides it from then on (see the dark
+mode toggle entry under "Technical rules" for how the choice persists).
+Dark mode reuses every token name at an inverted lightness — same hues, same
+roles, just lit for a dark background. **Do not introduce a new colour**:
+that rule is about hue, and the dark values must stay recognisably the same
+blue/teal/red family, not a new one.
 
 Blue/teal/red palette — the convention informational and government sites
 converge on (GOV.UK: primary blue `#1D70B8`, teal `#158187`, red `#D4351C`

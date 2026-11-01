@@ -154,7 +154,7 @@ const heroSlides = await buildHeroSlides(locale, { placeholders: true });
      the header and footer. No divider line needed between them - the
      colour shift itself is the separation. */
   .hero-band {
-    background: #fff;
+    background: var(--surface-raised);
     padding-block: var(--space-5);
   }
 
@@ -164,7 +164,7 @@ const heroSlides = await buildHeroSlides(locale, { placeholders: true });
      padding only: horizontal spacing stays on .wrap's own gutter, so
      content keeps the same left edge as the header/footer. */
   .steps-band {
-    background: #f1f5f9;
+    background: var(--surface-alt);
     padding-block: 4rem;
   }
 
@@ -525,7 +525,11 @@ const heroSlides = await buildHeroSlides(locale, { placeholders: true });
   }
 
   .stepper__tab:hover .stepper__tab-content {
-    background: rgba(26, 39, 51, 0.05);
+    /* Mixed from --ink rather than a fixed rgba: a dark tint reads on a
+       light background, a light tint on a dark one, so the hover effect
+       stays visible in both themes instead of vanishing against a dark
+       page background. */
+    background: color-mix(in srgb, var(--ink) 6%, transparent);
     transform: translateX(4px);
   }
 
@@ -552,10 +556,10 @@ const heroSlides = await buildHeroSlides(locale, { placeholders: true });
 
   .stepper__panel {
     grid-area: 1 / 1;
-    /* Pure white against the steps-band's off-white (#f1f5f9) - needs real
+    /* Raised layer against the steps-band's --surface-alt - needs real
        separation from it, unlike .card elsewhere which sits on --paper
        and only needs the usual --shadow. */
-    background: #fff;
+    background: var(--surface-raised);
     border: 1px solid var(--green-pale);
     border-inline-start: var(--border-accent) solid var(--ochre);
     /* A one-off larger radius and softer shadow, scoped to this single
